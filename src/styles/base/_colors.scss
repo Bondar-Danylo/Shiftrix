@@ -1,0 +1,27 @@
+:root {
+    // Main Colors
+    --main_color: #155DFC;
+    --white_color: #fff;
+    --black_color: #000;
+    --red_color: #E7000B;
+    --graphite_color: #364153;
+
+
+    --dark-grey_color: #6B7280;
+    --dark-blue_color: #113797;
+    --dark-red_color: #82181A;
+
+    --ligh-grey_color: #E5E7EB;
+    --light-red_color: #FFC9C9;
+
+
+    // Backgrounds
+    --light_bg: #F9FAFB;
+
+
+    // Gradients
+    --blue_gradient: linear-gradient(135deg, #84CEEB 0%, #5680E9 100%);
+    --dark-blue_gradient: linear-gradient(135deg, #5680E9 0%, #304883 100%);
+    --menu_gradient: linear-gradient(135deg, #c1dcff 0%, #e3c8ff 100%);
+    --menu-ligh_gradient: linear-gradient(135deg, #c3e7f5 0%, #d3d0fb 100%);
+}

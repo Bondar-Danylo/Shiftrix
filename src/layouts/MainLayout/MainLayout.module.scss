@@ -1,0 +1,19 @@
+.wrapper {
+    display: flex;
+}
+.main {
+    flex: 1;
+}
+
+.section {
+    overflow: auto;
+    padding: 25px;
+}
+
+
+// Responsive
+@media screen and (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+}

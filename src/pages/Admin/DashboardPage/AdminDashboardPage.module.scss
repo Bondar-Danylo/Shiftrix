@@ -1,3 +1,13 @@
+.wrapper {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    grid-template-areas:
+        "alerts alerts alerts alerts alerts alerts"
+        "status status status marketplace marketplace marketplace"
+        "shifts shifts shifts shifts actions actions"
+        "stats stats whatsapp whatsapp health health";
+}
 .title {
     display: flex;
     align-items: center;
@@ -5,5 +15,21 @@
         margin-left: 10px;
         font-size: var(--size-lg);
         font-weight: var(--weight-semibold);
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .wrapper {
+        grid-template-columns: 1fr;
+
+        grid-template-areas:
+            "alerts"
+            "status"
+            "marketplace"
+            "shifts"
+            "actions"
+            "stats"
+            "whatsapp"
+            "health";
     }
 }

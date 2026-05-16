@@ -1,0 +1,103 @@
+.wrapper {
+    grid-area: marketplace;
+}
+.main {
+    padding: 20px 0;
+}
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    &:not(:last-child) {
+        margin-bottom: 20px;
+    }
+    &__text {
+        font-size: var(--size-md);
+        font-weight: var(--weight-medium);
+        color: var(--dark-grey_color);
+    }
+    &__number {
+        font-weight: var(--weight-bold);
+        font-size: var(--size-2xl);
+    }
+}
+.action {
+    background-color: var(--light-orange_color);
+    padding: 15px;
+    border-radius: var(--small_radius);
+    border: 1px solid var(--orange_color);
+    &__top {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    &__title {
+        color: var(--dark-orange_color);
+        margin-left: 10px;
+        font-weight: var(--weight-medium);
+        &_success {
+            font-weight: var(--weight-medium);
+            color: var(--dark-orange_color);
+            margin: 0 auto;
+        }
+    }
+
+    &__explanation {
+        color: var(--red_color);
+        margin-bottom: 10px;
+    }
+    &_success {
+        .action__explanation {
+            color: var(--black_color);
+            line-height: 1.1rem;
+            text-align: center;
+        }
+    }
+    .buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    &__btn {
+        border-radius: var(--small_radius);
+        width: 50%;
+        transition: all ease 0.3s;
+        font-weight: var(--weight-medium);
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+    &__notify {
+        color: var(--white_color);
+        background-color: var(--dark-orange_color);
+        border: 1px solid var(--light-orange_color);
+    }
+    &__boost {
+        color: var(--dark-orange_color);
+        background-color: var(--light-orange_color);
+        border: 1px solid var(--dark-orange_color);
+    }
+}
+.loading {
+    text-align: center;
+    font-size: var(--size-2xl);
+    margin-top: 100px;
+}
+
+// Responsive
+@media screen and (max-width: 992px) {
+    .buttons {
+        flex-direction: column;
+    }
+    .action__btn {
+        width: 100%;
+    }
+}
+@media screen and (max-width: 575px) {
+    .action__explanation {
+        font-size: 14px;
+    }
+    .loading {
+        margin-top: 10px;
+    }
+}

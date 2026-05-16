@@ -9,6 +9,7 @@
 }
 
 .attention {
+    grid-area: alerts;
     padding: 20px;
     background-color: var(--light-red_color);
     border-radius: var(--normal_radius);

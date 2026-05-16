@@ -1,0 +1,20 @@
+.wrapper {
+    border-radius: var(--normal_radius);
+    background-color: var(--white_color);
+    padding: 20px;
+    box-shadow: var(--main_shadow);
+    border: 1px solid var(--ligh-grey_color);
+}
+.top {
+    border-bottom: 2px solid var(--ligh-grey_color);
+    padding-bottom: 20px;
+}
+.title {
+    font-size: var(--size-lg);
+    font-weight: var(--weight-semibold);
+}
+.subtitle {
+    font-size: var(--size-md);
+    color: var( --dark-grey_color);
+    margin-top: 5px;
+}

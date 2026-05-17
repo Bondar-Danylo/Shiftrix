@@ -5,6 +5,7 @@ import styles from "./AdminDashboardPage.module.scss";
 // Components
 import AttentionBlock from "@/components/Admin/Dashboard/AttentionBlock/AttentionBlock";
 import MarketplaceCard from "@/components/Admin/Dashboard/MarketplaceCard/MarketplaceCard";
+import UpcomingShiftCard from "@/components/Admin/Dashboard/UpcomingShiftCard/UpcomingShiftCard";
 
 const AdminDashboardPage = () => {
   return (
@@ -12,6 +13,7 @@ const AdminDashboardPage = () => {
       <AttentionBlock />
       <CoverageCard />
       <MarketplaceCard />
+      <UpcomingShiftCard />
     </div>
   );
 };

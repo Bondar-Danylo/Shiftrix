@@ -18,6 +18,19 @@
     }
 }
 
+// Responsive
+@media screen and (max-width: 992px) {
+  .wrapper {
+    grid-template-columns: repeat(2, 1fr); 
+    
+    grid-template-areas:
+      "alerts alerts"          
+      "status marketplace"    
+      "shifts shifts"          
+      "actions health"       
+      "stats whatsapp";       
+  }
+}
 @media screen and (max-width: 575px) {
     .wrapper {
         grid-template-columns: 1fr;

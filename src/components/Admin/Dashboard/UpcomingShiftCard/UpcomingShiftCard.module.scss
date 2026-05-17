@@ -1,0 +1,71 @@
+.wrapper {
+    grid-area: shifts;
+}
+.dropdown {
+    margin: 20px 0;
+}
+.shiftsList {
+    max-height: 215px;
+    overflow-y: auto;
+}
+.shiftCard {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--small_radius);
+    margin-right: 10px;
+    &:not(:last-child) {
+        margin-bottom: 10px;
+    }
+}
+.covered {
+    background-color: var(--light-green_color);
+    border: 1px solid var(--green_color);
+}
+.uncovered {
+    background-color: var(--light-red_color);
+    border: 1px solid var(--red_color);
+}
+.shiftTime {
+    font-weight: var(--weight-medium);
+}
+.position {
+    color: var(--dark-grey_color);  
+}
+.shiftInfo {
+    display: flex;
+    align-items: center;
+}
+.workerName {
+    font-weight: var(--weight-medium);
+    margin-right: 10px;
+    font-size: var(--size-lg);
+}
+.timeUntil {
+    color: var(--dark-grey_color);
+}
+.notAssigned {
+    color: var(--red_color);
+}
+.emptyText {
+    text-align: center;
+    font-weight: var(--weight-medium);
+    font-size: var(--size-lg);
+    color: var(--main_color);
+}
+
+// Responsive
+@media screen and (max-width: 475px) {
+    .shiftCard {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    .shiftLeft {
+        display: flex;
+    }
+    .position {
+        margin-left: 10px;
+    }
+}

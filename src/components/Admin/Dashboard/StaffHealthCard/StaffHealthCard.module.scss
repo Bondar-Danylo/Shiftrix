@@ -1,0 +1,36 @@
+.wrapper {
+    grid-area: health;
+}
+.list {
+    max-height: 200px;
+    overflow: auto;
+    padding: 20px 0px 0 0;
+}
+.item {
+    padding: 15px;
+    background-color: var(--light-orange_color);
+    border-radius: var(--small_radius);
+    border: 1px solid var(--orange_color);
+    &:not(:last-child) {
+        margin-bottom: 10px;
+    }
+}
+.name {
+    font-weight: var(--weight-medium);
+    margin-bottom: 5px;
+}
+.reason {
+    color: var(--red_color);
+}
+.button {
+    margin-top: 20px;
+    width: 100%;
+    max-width: unset;
+    color: var(--white_color);
+    background-color: var(--main_color);
+    svg {
+        stroke: var(--white_color);
+        width: 20px;
+        height: 20px;
+    }
+}

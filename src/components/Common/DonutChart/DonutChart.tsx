@@ -1,3 +1,4 @@
+// Imports
 import React from "react";
 import type { DonutChartProps, DonutSegment } from "./DonutChart.types";
 

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+// Styles
 import styles from "./Menu.module.scss";
 
 // Icons
@@ -12,6 +12,9 @@ import StarIcon from "@/assets/icons/star_icon.svg?react";
 
 // Types
 import type { MenuItem, MenuProps } from "./Menu.types";
+
+// Imports
+import { NavLink } from "react-router-dom";
 
 const menuConfig: MenuItem[] = [
   // Shared Pages

@@ -6,6 +6,7 @@ import CardLayout from "../CardLayout/CardLayout";
 import DonutChart from "@/components/Common/DonutChart/DonutChart";
 import Button from "@/components/Common/Button/Button";
 
+// Imports
 import React from "react";
 import type { CoverageItem } from "./CoverageCard.types";
 

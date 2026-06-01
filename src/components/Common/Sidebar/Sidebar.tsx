@@ -1,8 +1,15 @@
+// Styles
 import styles from "./Sidebar.module.scss";
+
+// Components
 import Logo from "@/components/Common/Logo/Logo";
-import userIcon from "@/assets/user_img.png";
 import Menu from "@/components/Common/Menu/Menu";
+
+// Icons
+import userIcon from "@/assets/user_img.png";
 import BurgerMenuIcon from "@/assets/icons/burger-menu_icon.svg?react";
+
+// Imports
 import { Link } from "react-router-dom";
 import type { UserRole } from "@/types/User.types";
 import { useState } from "react";

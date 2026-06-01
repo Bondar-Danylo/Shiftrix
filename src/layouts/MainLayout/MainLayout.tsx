@@ -1,7 +1,12 @@
-import Sidebar from "@/components/Common/Sidebar/Sidebar";
+// Styles
 import styles from "./MainLayout.module.scss";
-import { Outlet } from "react-router-dom";
+
+// Components
+import Sidebar from "@/components/Common/Sidebar/Sidebar";
 import Header from "@/components/Common/Header/Header";
+
+// Imports
+import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
   return (

@@ -1,9 +1,16 @@
+// Styles
 import styles from "./LoginPage.module.scss";
+
+// Icons
 import emailIcon from "@/assets/icons/email_icon.svg";
 import padlock from "@/assets/icons/padlock_icon.svg";
 import eyeIcon from "@/assets/icons/eye_icon.svg";
 import eyeOffIcon from "@/assets/icons/eye-off_icon.svg";
+
+// Components
 import Button from "@/components/Common/Button/Button";
+
+// Imports
 import React, { useState } from "react";
 import { Link, useNavigate, type NavigateFunction } from "react-router-dom";
 
@@ -59,25 +66,19 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      // 1. Имитация запроса к API
       console.log("Data sent:", formData);
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // 2. Имитируем получение токена и роли от сервера
-      // Для теста: если в почте есть слово "admin", даем роль админа
       const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
       const role = formData.email.toLowerCase().includes("admin")
         ? "admin"
         : "user";
 
-      // 3. Сохраняем данные для DashboardLayout и защиты роутов
       localStorage.setItem("userToken", fakeToken);
       localStorage.setItem("userRole", role);
 
-      // 4. SPA редирект на главную страницу личного кабинета
       navigate("/");
     } catch (err) {
-      // Обработка ошибок (например, если сервер вернул 401)
       setErrors({ general: "Incorrect password or email. Please try again." });
     } finally {
       setIsLoading(false);

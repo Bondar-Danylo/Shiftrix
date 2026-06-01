@@ -1,13 +1,19 @@
+// Imports
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+
+// Pages
 import LoginPage from "@/pages/Common/LoginPage/LoginPage";
-import MainLayout from "@/layouts/MainLayout/MainLayout";
 import AdminDashboardPage from "./pages/Admin/DashboardPage/AdminDashboardPage";
 import RequestsPage from "./pages/Common/RequestsPage/RequestsPage";
+import AnalyticsPage from "./pages/Admin/AnalyticsPage/AnalyticsPage";
+
+// Layouts
+import MainLayout from "@/layouts/MainLayout/MainLayout";
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem("userToken");
@@ -29,6 +35,8 @@ const App = () => {
           />
 
           <Route path="requests" element={<RequestsPage />} />
+
+          <Route path="analytics" element={<AnalyticsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" />} />

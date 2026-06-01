@@ -1,0 +1,40 @@
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.title {
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+    margin-bottom: 5px;
+}
+.subtitle {
+    color: var(--dark-grey_color);
+}
+.control {
+    display: flex;
+    align-items: center;
+}
+.dropdown {
+    width: 120px;
+}
+.button {
+    margin-left: 20px;
+    background-color: var(--main_color);
+    color: var(--white_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-medium);
+    border-radius: var(--small_radius);
+    padding: 10px;
+}
+
+// List
+.list {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+.full {
+    width: 100%;
+}

@@ -1,0 +1,19 @@
+.card {
+    padding: 20px;
+    background-color: var(--white_color);
+    border-radius: var(--normal_radius);
+    box-shadow: var( --main_shadow);
+    &__title {
+        text-align: center;
+        display: flex;
+        font-size: var(--size-md);
+        font-weight: var(--weight-semibold);
+        margin-bottom: 20px;
+        svg {
+            color: var(--main_color);
+        }
+        span {
+            margin-left: 5px;
+        }
+    }
+}

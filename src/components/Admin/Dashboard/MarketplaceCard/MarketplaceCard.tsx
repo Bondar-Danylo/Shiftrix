@@ -10,6 +10,7 @@ import AttentionIcon from "@/assets/icons/attention-orange_icon.svg?react";
 import BellIcon from "@/assets/icons/bell_icon.svg?react";
 import RocketIcon from "@/assets/icons/rocket_icon.svg?react";
 
+// Imports
 import React, { useState, useEffect } from "react";
 import type { MarketplaceData } from "./MarketplaceCard.types";
 

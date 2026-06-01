@@ -4,6 +4,7 @@ import styles from "./Dropdown.module.scss";
 // Interface
 import type { DropdownProps } from "./Dropdown.types";
 
+// Imports
 import { useState, useEffect, useRef } from "react";
 
 const Dropdown = <T,>({

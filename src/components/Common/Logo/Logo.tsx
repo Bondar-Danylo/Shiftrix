@@ -1,3 +1,4 @@
+// Imports
 import { useState, useEffect, memo } from "react";
 import type { ClockHandProps, LogoProps } from "./Logo.types";
 

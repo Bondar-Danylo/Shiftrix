@@ -1,5 +1,7 @@
 // Styles
 import styles from "./CardLayout.module.scss";
+
+// Imports
 import type { CardLayoutProps } from "./CardLayout.types";
 
 const CardLayout = ({

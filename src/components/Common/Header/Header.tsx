@@ -1,6 +1,13 @@
+// Styles
 import styles from "./Header.module.scss";
+
+// Components
 import Button from "@/components/Common/Button/Button";
+
+// Icons
 import LogoutIcon from "@/assets/icons/log-out_icon.svg?react";
+
+// Imports
 import {
   useLocation,
   useNavigate,
@@ -25,7 +32,7 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
-      <h2 className={styles.title}>{formattedTitle}</h2>
+      <h1 className={styles.title}>{formattedTitle}</h1>
       <Button
         className={styles.logout}
         isLink={false}

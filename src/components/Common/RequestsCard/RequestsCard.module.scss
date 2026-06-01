@@ -1,0 +1,190 @@
+.card {
+  background: var(--white_color);
+  border-radius: var(--small_radius);
+  border: 1px solid var(--ligh-grey_color);
+  padding: 20px;
+  box-shadow: var(--main_shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 50px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--size-md);
+  font-weight: var(--weight-semibold);
+  color: var(--black_color);
+}
+
+.position {
+  margin-top: 5px;
+  font-size: var(--size-sm);
+  color: var(--dark-grey_color);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  border-radius: var(--normal_radius);
+  font-size: var(--size-sm);
+  font-weight: var(--weight-bold);
+  color: var(--white_color);
+  
+  &_swap {
+    background: var(--blue_gradient); 
+  }
+  &_dayoff {
+    background: var(--pink_gradient);
+  }
+  &_holiday {
+    background: var(--orange_gradient);
+  }
+}
+
+.cardContent {
+  background: var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--graphite_color);
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+.metaIcon {
+  width: 15px;
+  height: 15px;
+}
+
+.metaText {
+  font-size: var(--size-sm);
+  font-weight: var(--weight-medium);
+}
+
+.reason {
+  margin: 4px 0 0 0;
+  font-size: var(--size-sm);
+  
+  &Label {
+    color: var(--graphite_color);
+    font-weight: var(--weight-medium);
+    font-size: var(--size-sm);
+  }
+}
+
+.swapWith {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: var(--size-md);
+}
+
+.smallAvatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.swapName {
+  font-weight: 600;
+  color: var(--black_color);
+}
+
+.cardActions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.btnApprove, .btnReject {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  font-size: var(--size-md);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--small_radius);
+  transition: all 0.2s ease;
+}
+
+.btnApprove {
+  background: var(--dark-green_color);
+  color: var(--white_color);
+  border: none;
+}
+
+.btnReject {
+  background: var(--white_color);
+  color: var(--dark-grey_color);
+  border: 1px solid var(--ligh-grey_color);
+}
+
+// Responsive 
+@media (max-width: 500px) {
+  .cardTop {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .badge {
+    align-self: flex-start;
+  }
+  .swapName, .swapWith {
+    font-size: var(--size-sm);
+  }
+}
+
+@media screen and (max-width: 475px) {
+  .cardActions {
+    flex-direction: column;
+  }
+  .profile {
+    order: 2;
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+  .badge {
+    align-self: center;
+  }
+}

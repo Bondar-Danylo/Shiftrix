@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export interface IButton {
+export interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
     type: 'button' | 'submit',
     isLink: boolean,
     size: 'small' | 'normal' | 'large',
@@ -8,4 +8,5 @@ export interface IButton {
     to?: string,
     disabled?: boolean,
     className?: string;
+    onClick?: () => void
 }

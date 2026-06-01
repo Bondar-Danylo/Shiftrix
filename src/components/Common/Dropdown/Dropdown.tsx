@@ -6,7 +6,7 @@ import type { DropdownProps } from "./Dropdown.types";
 
 import { useState, useEffect, useRef } from "react";
 
-export const Dropdown = <T,>({
+const Dropdown = <T,>({
   options,
   onSelect,
   renderOption,
@@ -68,7 +68,7 @@ export const Dropdown = <T,>({
         <div className={styles.menu}>
           <div className={styles.menuInner}>
             {options.length === 0 ? (
-              <div className={styles.emptyState}>Нет доступных опций</div>
+              <div className={styles.emptyState}>No availible options</div>
             ) : (
               options.map((option, index) => (
                 <button
@@ -87,3 +87,5 @@ export const Dropdown = <T,>({
     </div>
   );
 };
+
+export default Dropdown;

@@ -3,7 +3,7 @@ import styles from "./UpcomingShiftCard.module.scss";
 
 // Components
 import CardLayout from "../CardLayout/CardLayout";
-import { Dropdown } from "@/components/Common/Dropdown/Dropdown";
+import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import { useState, useMemo } from "react";
 
 const UpcomingShiftCard = () => {

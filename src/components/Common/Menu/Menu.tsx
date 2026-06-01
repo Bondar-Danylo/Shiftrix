@@ -22,13 +22,13 @@ const menuConfig: MenuItem[] = [
     roles: ["admin", "user"],
   },
   {
-    to: "/Schedule",
+    to: "/schedule",
     label: "Schedule",
     Icon: ScheduleIcon,
     roles: ["admin", "user"],
   },
   {
-    to: "/Settings",
+    to: "/settings",
     label: "Settings",
     Icon: SettingsIcon,
     roles: ["admin", "user"],
@@ -36,14 +36,14 @@ const menuConfig: MenuItem[] = [
 
   // Admin Pages
   {
-    to: "/Employees",
+    to: "/employees",
     label: "Employees",
     Icon: EmployeesIcon,
     roles: ["admin"],
   },
-  { to: "/Requests", label: "Requests", Icon: RequestIcon, roles: ["admin"] },
+  { to: "/requests", label: "Requests", Icon: RequestIcon, roles: ["admin"] },
   {
-    to: "/Analytics",
+    to: "/analytics",
     label: "Analytics",
     Icon: AnalyticsIcon,
     roles: ["admin"],

@@ -4,13 +4,6 @@ import { Outlet } from "react-router-dom";
 import Header from "@/components/Common/Header/Header";
 
 const MainLayout = () => {
-  // const navigate: NavigateFunction = useNavigate();
-
-  // const handleLogout = (): void => {
-  //   localStorage.clear();
-  //   navigate("/login");
-  // };
-
   return (
     <div className={styles.wrapper}>
       <Sidebar />

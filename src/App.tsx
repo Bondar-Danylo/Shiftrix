@@ -4,9 +4,10 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import LoginPage from "@/pages/LoginPage/LoginPage";
+import LoginPage from "@/pages/Common/LoginPage/LoginPage";
 import MainLayout from "@/layouts/MainLayout/MainLayout";
 import AdminDashboardPage from "./pages/Admin/DashboardPage/AdminDashboardPage";
+import RequestsPage from "./pages/Common/RequestsPage/RequestsPage";
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem("userToken");
@@ -26,6 +27,8 @@ const App = () => {
             path="dashboard"
             element={role === "admin" ? <AdminDashboardPage /> : ""}
           />
+
+          <Route path="requests" element={<RequestsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" />} />

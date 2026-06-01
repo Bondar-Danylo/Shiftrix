@@ -8,15 +8,16 @@ const Button = ({
   children,
   to = "#",
   className,
+  onClick,
 }: IButton) => {
   const buttonClasses: string = `${styles.btn} ${styles[size]} ${className}`;
 
   return isLink ? (
-    <a href={to} className={buttonClasses}>
+    <a href={to} className={buttonClasses} onClick={onClick}>
       {children}
     </a>
   ) : (
-    <button type={type} className={buttonClasses}>
+    <button type={type} className={buttonClasses} onClick={onClick}>
       {children}
     </button>
   );

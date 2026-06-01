@@ -29,6 +29,9 @@
             font-weight: var(--weight-medium);
             background: var(--menu_gradient);
             border-radius: var(--small_radius);
+            svg {
+                stroke: var(--main_color);
+            }
         }
     }
 }

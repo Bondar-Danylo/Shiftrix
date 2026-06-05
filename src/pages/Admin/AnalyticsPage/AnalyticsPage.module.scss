@@ -28,13 +28,14 @@
     padding: 10px;
 }
 
-// List
-.list {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-top: 20px;
-}
-.full {
-    width: 100%;
+
+// Responsive
+@media screen and (max-width: 575px) {
+    .top {
+        flex-direction: column;
+        text-align: center;
+    }
+    .control {
+        margin-top: 15px;
+    }
 }

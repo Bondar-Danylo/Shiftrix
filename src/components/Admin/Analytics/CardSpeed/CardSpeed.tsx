@@ -3,6 +3,7 @@ import styles from "./CardSpeed.module.scss";
 
 // Components
 import CardLayout from "@/components/Admin/Analytics/CardLayout/CardLayout";
+import CardLoader from "@/components/Common/Loader/Loader";
 
 // Icons
 import LightingIcon from "@/assets/icons/lighting_icon.svg?react";
@@ -17,10 +18,7 @@ const CardSpeed = ({ data, isLoading }: CardSpeedProps) => {
   if (isLoading || !data) {
     return (
       <CardLayout title="System Speed & Autonomy" image={LightingIcon}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner}></div>
-          <span>Updating metrics...</span>
-        </div>
+        <CardLoader text="Updating metrics..." />
       </CardLayout>
     );
   }

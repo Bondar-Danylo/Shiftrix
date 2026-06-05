@@ -3,9 +3,11 @@
     background-color: var(--white_color);
     border-radius: var(--normal_radius);
     box-shadow: var( --main_shadow);
+    height: 100%;
     &__title {
         text-align: center;
         display: flex;
+        align-items: center;
         font-size: var(--size-md);
         font-weight: var(--weight-semibold);
         margin-bottom: 20px;
@@ -17,3 +19,4 @@
         }
     }
 }
+

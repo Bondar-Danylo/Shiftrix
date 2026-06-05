@@ -18,7 +18,6 @@
     align-items: center;
     gap: 8px;
 
-    // Стилизация кастомной линии со сферой внутри легенды
     .legend__line {
       position: relative;
       width: 24px;
@@ -39,18 +38,18 @@
 
     &_spent {
       .legend__line {
-        background-color: #f44336;
-        &::after { background-color: #f44336; }
+        background-color: var(--red_color);
+        &::after { background-color: var(--red_color); }
       }
-      .legend__text { color: #f44336; }
+      .legend__text { color: var(--red_color); }
     }
 
     &_earned {
       .legend__line {
-        background-color: #10b981;
-        &::after { background-color: #10b981; }
+        background-color: var(--dark-green_color);
+        &::after { background-color: var(--dark-green_color); }
       }
-      .legend__text { color: #10b981; }
+      .legend__text { color: var(--dark-green_color); }
     }
   }
 

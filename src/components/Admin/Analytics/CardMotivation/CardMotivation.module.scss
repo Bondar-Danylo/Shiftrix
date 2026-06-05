@@ -1,0 +1,26 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.subtitle {
+  color: var(--dark-grey_color);
+  font-size: var(--size-md);
+  line-height: 1.4;
+  margin: 0;
+  max-width: 90%; 
+}
+
+.chartWrapper {
+  width: 100%;
+  margin-top: 5px;
+}
+
+// Responsive
+@media screen and (max-width: 525px) {
+  .subtitle {
+    font-size: var(--size-sm);
+  }
+}

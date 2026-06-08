@@ -1,0 +1,99 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  background: var(--white_color);
+  border-radius: var(--normal_radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: var(--size-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--black_color);
+  margin: 0;
+  text-align: center;
+}
+
+.description {
+  font-size: var(--size-md);
+  color: var(--dark-grey_color);
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cancelBtn {
+  background-color: var(--grey_color) !important;
+  color: var(--graphite_color) !important;
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  min-width: 100px;
+  font-weight: var(--weight-semibold);
+}
+
+.confirmBtn {
+  &.primary {
+    background-color: var(--main_color) !important;
+    color: var(--white_color) !important;
+    border-radius: var(--small_radius);
+    min-width: 100px;
+    font-weight: var(--weight-semibold);
+  }
+
+  &.danger {
+    background-color: var(--red_color) !important;
+    color: var(--white_color) !important;
+    border-radius: var(--normal_radius);
+    min-width: 100px;
+    font-weight: var(--weight-semibold);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+// Responsive
+@media screen and (max-width: 575px) {
+  .modal {
+    margin: 15px;
+  }
+}

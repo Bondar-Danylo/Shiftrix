@@ -30,7 +30,7 @@ const Sidebar = () => {
       </div>
       <Menu role={userRole} status={isMenuOpen} onClickEvent={setIsMenuOpen} />
       <div className={styles.sidebar__bottom}>
-        <Link to="/User" className={styles.user}>
+        <Link to="/profile" className={styles.user}>
           <img src={userIcon} alt="User Image" className={styles.user__img} />
           <p className={styles.user__info}>
             Danylo Bondar

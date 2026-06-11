@@ -1,0 +1,115 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.header {
+  background: var(--pink-light_gradient);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--light_shadow);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    .name {
+        font-size: var(--size-xl);
+        font-weight: var(--weight-semibold);
+        color: var(--black_color);
+    }
+    .role {
+        font-size: var(--size-md);
+        color: var(--dark-grey_color);
+        font-weight: var(--weight_medium);
+
+    }
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--grey_color);
+    border: 1px solid var(--ligh-grey_color);
+    padding: 8px 16px;
+    border-radius: var(--small_radius);
+    font-size: var(--size-md);
+    font-weight: var(--weight_medium);
+    color: var(--graphite_color);
+  }
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--graphite_color);
+}
+
+
+.badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: var(--normal_radius);
+  font-size: var(--size-sm);
+  font-weight: var(--weight-semibold);
+
+  &.statusWorking {
+    background-color: var(--light-green_color);
+    color: var(--dark-green_color);
+  }
+
+  &.statusActive {
+    background-color: var(--light-purple_color);
+    color: var(--purple_color);
+  }
+}
+
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.leftColumn, .rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Responsive
+@media screen and (max-width: 768px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media screen and (max-width: 575px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    text-align: center;
+  }
+}
+@media screen and (max-width: 425px) {
+  .avatar {
+    display: none;
+  }
+}

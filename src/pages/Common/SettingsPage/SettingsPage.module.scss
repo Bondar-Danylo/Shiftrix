@@ -1,0 +1,42 @@
+.tabs {
+  border-bottom: 1px solid var(--ligh-grey_color);
+  display: flex;
+  gap: 8px;
+  margin-bottom: -1px; 
+  background-color: var(--white_color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  &__button {
+    background: none;
+    border: none;
+    padding: 12px 16px;
+    font-size: var(--size-md);
+    font-weight: var(--weight-medium);
+    color: var(--graphite_color);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    &:hover {
+      color: var(--black_color);
+    }
+  }
+  &__active {
+    color: var(--main_color);
+    border-bottom-color: var(--main_color);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.content {
+  margin-top: 40px;
+}
+
+// Responsive
+@media screen and (max-width: 992px) {
+  .tabs {
+    overflow-x: auto;
+  }
+}

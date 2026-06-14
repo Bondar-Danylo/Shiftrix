@@ -1,0 +1,245 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+
+  &__title {
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+    margin-bottom: 6px;
+  }
+
+  &__subtitle {
+    font-size: var(--size-md);
+    color: var(--dark-grey_color);
+  }
+}
+
+.btn {
+  background-color: var(--main_color);
+  color: var(--white_color);
+  border-radius: var(--small_radius);
+  font-weight: var(--weight-medium);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.card {
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+  padding: 24px;
+  box-shadow: var(--light_shadow);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  &__icon {
+    font-size: var(--size-md);
+    background-color: var(--light-orange_color); 
+    color: var(--orange_color);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--small_radius);
+  }
+
+  &__title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 15px;
+}
+
+.dropdown {
+    width: 100%;
+    max-width: unset;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: var(--size-md);
+    font-weight: var(--weight-medium);
+    color: var(--black_color);
+  }
+
+  input[type="number"],
+  select {
+    padding: 8px 12px;
+    border: 1px solid var(--ligh-grey_color);
+    border-radius: var(--small_radius);
+    font-size: var(--size-md);
+    color: var(--black_color);
+    background-color: var(--white_color);
+    outline: none;
+
+    &:focus {
+      border-color: var(--main_color);
+      box-shadow: var(--light_shadow);
+    }
+  }
+
+  &__hint {
+    font-size: var(--size-sm);
+    color: var(--dark-grey_color);
+    margin-top: 2px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--small_radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  &__title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+  }
+
+  &__description {
+    font-size: var(--size-sm);
+    color: var(--dark-grey_color);
+  }
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.blue {
+    background-color: var(--light-blue_color);
+    input {
+        accent-color: var(--main_color);
+    }
+}
+.purple {
+    background-color: var(--light-purple_color);
+    input {
+        accent-color: var(--purple_color);
+    }
+}
+.green {
+    background-color: var(--light-green_color);
+    input {
+        accent-color: var(--dark-green_color);
+    }
+}
+
+.info {
+  background: var(--pink-light_gradient);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  padding: 16px;
+
+  &__header {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  &__icon {
+    font-size: var(--size-lg);
+  }
+  &__title {
+    font-size: var(--size-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+  }
+
+  &__text {
+    margin-top: 10px;
+  }
+
+  &__description {
+    font-size: var(--size-md);
+    color: var(--dark-grey_color);
+    line-height: 1.5;
+  }
+}
+
+// Responsive 
+@media screen and (max-width: 575px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .card {
+    padding: 15px;
+  }
+  .grid {
+    grid-template-columns:  1fr;
+  }
+  .info {
+    padding: 15px;
+    &__title, &__icon {
+        font-size: var(--size-md);
+    }
+  }
+  .info__description {
+    font-size: var(--size-sm);
+  }
+  .checkbox {
+    gap: 5px;
+    padding: 10px;
+    &__title {
+        font-size: var(--size-sm);
+    }
+  }
+}

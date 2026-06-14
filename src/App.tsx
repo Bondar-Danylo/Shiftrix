@@ -13,6 +13,7 @@ import RequestsPage from "./pages/Common/RequestsPage/RequestsPage";
 import AnalyticsPage from "./pages/Admin/AnalyticsPage/AnalyticsPage";
 import EmployeesPage from "./pages/Admin/EmployeesPage/EmployeesPage";
 import ProfilePage from "./pages/Common/ProfilePage/ProfilePage";
+import SettingsPage from "./pages/Common/SettingsPage/SettingsPage";
 
 // Layouts
 import MainLayout from "@/layouts/MainLayout/MainLayout";
@@ -43,6 +44,8 @@ const App = () => {
           <Route path="employees" element={<EmployeesPage />} />
 
           <Route path="profile" element={<ProfilePage />} />
+
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" />} />

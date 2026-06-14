@@ -1,0 +1,264 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.modal {
+  background: var(--white_color);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh; 
+  border-radius: var(--normal_radius);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--main_shadow);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background-color: var(--grey_color);
+  border-bottom: 1px solid var(--ligh-grey_color);
+
+  &__title {
+    font-size: var(--size-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--dark-blue_color); 
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--dark-grey_color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: color 0.1s;
+    
+    &:hover {
+      color: var(--black_color);
+    }
+  }
+}
+
+.formContent {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.tripleRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--size-sm);
+  font-weight: var(--weight-medium);
+  color: var(--dark-grey_color);
+}
+
+.input {
+  width: 100%;
+  height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  font-size: var(--size-md);
+  color: var(--black_color);
+  background-color: var(--white_color);
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: var(--main_color);
+    box-shadow: var(--ligh_shadow);
+  }
+
+  &::placeholder {
+    color: var(--dark-grey_color);
+  }
+}
+
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  font-size: var(--size-md);
+  color: var(--black_color);
+  outline: none;
+  resize: none;
+  font-family: inherit;
+
+  &:focus {
+    border-color: var(--main_color);
+  }
+
+  &::placeholder {
+    color: var(--dark-grey_color);
+  }
+}
+
+.daysGrid {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.dayButton {
+  flex: 1;
+  height: 34px;
+  background-color: var(--grey_color);
+  border: 1px solid var(--ligh-grey_color);
+  color: var(--dark-grey_color);
+  border-radius: var(--small_radius);
+  font-size: var(--size-md);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+
+  &:hover {
+    background-color: var(--ligh-grey_color);
+  }
+
+  &_active {
+    background-color: var(--light-blue_color);
+    border-color: var(--main_color);
+    color: var(--main_color);
+  }
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--size-md);
+  color: var(--black_color);
+  cursor: pointer;
+  user-select: none;
+  margin-top: 4px;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--main_color);
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--ligh-grey_color);
+  background-color: var(--white_color);
+}
+
+.submitBtn {
+  background-color: var(--main_color);
+  color: var(--white_color);
+  border-radius: var(--small_radius);
+  font-weight: var(--weight-medium)
+}
+
+.cancelBtn {
+  background-color: var(--ligh-grey_color);
+  color: var(--dark-grey_color);
+  border-radius: var(--small_radius);
+  font-weight: var(--weight-medium);
+
+  &:hover {
+    color: var(--main_color);
+    background-color: var(--light-blue_color);
+  }
+}
+
+// Responsive
+@media screen and (max-width: 768px) {
+  .modal {
+    margin: 15px;
+  }
+  .daysGrid {
+    flex-wrap: wrap;
+  }
+  .dayButton {
+    min-width: 50px;
+    max-width: 50px;
+  }
+  .input {
+    font-size: var(--size-sm);
+  }
+  .checkboxLabel {
+    font-size: var(--size-sm);
+  }
+  .textarea {
+    font-size: var(--size-sm);
+  }
+}
+@media screen and (max-width: 375px) {
+  .actions {
+    flex-direction: column;
+    padding: 15px;
+  }
+  .header {
+    padding: 15px;
+  }
+  .formContent {
+    padding: 15px;
+  }
+}

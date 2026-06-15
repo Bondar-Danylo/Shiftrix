@@ -1,7 +1,9 @@
-.container {
+.wrapper {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header {
@@ -38,19 +40,10 @@
   }
 }
 
-
-.search {
-  max-width: 100%;
-}
-
-// Responsive 
 @media screen and (max-width: 575px) {
   .header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
-  }
-  .container {
-    gap: 15px;
   }
 }

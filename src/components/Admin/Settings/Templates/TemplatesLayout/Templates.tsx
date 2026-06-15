@@ -68,17 +68,19 @@ const Templates = () => {
       template.role.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleCreateClick = () => {
+  const handleCreateClick = (): void => {
     setTemplateToEdit(null);
     setIsFormModalOpen(true);
   };
 
-  const handleEditClick = (template: ShiftTemplate) => {
+  const handleEditClick = (template: ShiftTemplate): void => {
     setTemplateToEdit(template);
     setIsFormModalOpen(true);
   };
 
-  const handleSaveTemplate = (templateData: Omit<ShiftTemplate, "id">) => {
+  const handleSaveTemplate = (
+    templateData: Omit<ShiftTemplate, "id">,
+  ): void => {
     if (templateToEdit) {
       setTemplates((prev) =>
         prev.map((t) =>
@@ -98,22 +100,22 @@ const Templates = () => {
     setTemplateToEdit(null);
   };
 
-  const handleDeleteClick = (template: ShiftTemplate) => {
+  const handleDeleteClick = (template: ShiftTemplate): void => {
     setActiveTemplate(template);
     setModalMode("delete");
   };
 
-  const handleDuplicateClick = (template: ShiftTemplate) => {
+  const handleDuplicateClick = (template: ShiftTemplate): void => {
     setActiveTemplate(template);
     setModalMode("duplicate");
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (): void => {
     setActiveTemplate(null);
     setModalMode(null);
   };
 
-  const handleConfirmAction = async () => {
+  const handleConfirmAction = async (): Promise<void> => {
     if (!activeTemplate || !modalMode) return;
     setIsProcessing(true);
     try {
@@ -145,8 +147,8 @@ const Templates = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h2 className={styles.title}>Shift Templates</h2>
-          <p className={styles.subtitle}>
+          <h2 className={styles.header__title}>Shift Templates</h2>
+          <p className={styles.header__subtitle}>
             Create reusable templates for recurring shifts
           </p>
         </div>
@@ -157,7 +159,7 @@ const Templates = () => {
           className={styles.btn}
           onClick={handleCreateClick}
         >
-          <span>+ Create Template</span>
+          <span>Create Template</span>
         </Button>
       </div>
 

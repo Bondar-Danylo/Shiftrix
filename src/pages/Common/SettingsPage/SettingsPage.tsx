@@ -5,14 +5,13 @@ import { useState } from "react";
 import styles from "./SettingsPage.module.scss";
 
 // Components
-import WhatsappBotCard from "@/components/Common/ProfilePage/WhatsappBotCard/WhatsappBotCard";
-import ScheduleDeliveryCard from "@/components/Common/ProfilePage/ScheduleDeliveryCard/ScheduleDeliveryCard";
 import Templates from "@/components/Admin/Settings/Templates/TemplatesLayout/Templates";
+import PointsRulesTemplate from "@/components/Admin/Settings/PointsRules/PointsRulesTemplate/PointsRulesTemplate";
+import SchedulingRulesTemplate from "@/components/Admin/Settings/SchedulingRules/SchedulingRulesTemplate/SchedulingRulesTemplate";
+import NotificationsTemplate from "@/components/Admin/Settings/Notifications/NotificationsTemplate/NotificationsTemplate";
 
 // Types
 import type { UserRole, TabConfig, SettingsTabId } from "./SettingsPage.types";
-import type { NotificationSettings } from "@/pages/Common/ProfilePage/ProfilePage.types";
-import PointsRulesTemplate from "@/components/Admin/Settings/PointsRules/PointsRulesTemplate/PointsRulesTemplate";
 
 const TABS_CONFIG: TabConfig[] = [
   {
@@ -27,23 +26,11 @@ const TABS_CONFIG: TabConfig[] = [
     allowedRoles: ["Manager"],
   },
   {
-    id: "roles-contracts",
-    label: "Roles & Contracts",
-    allowedRoles: ["Manager"],
-  },
-  {
     id: "whatsapp-bot",
     label: "WhatsApp Bot",
     allowedRoles: ["Manager", "Employee"],
   },
 ];
-
-const MOCK_USER_PROFILE = {
-  id: 1,
-  name: "Sarah Johnson",
-  whatsappConnected: true,
-  whatsappPhone: "+1 (555) 123-4567",
-};
 
 const SettingsPage = () => {
   const [currentRole] = useState<UserRole>("Manager");
@@ -53,17 +40,6 @@ const SettingsPage = () => {
   );
 
   const [activeTab, setActiveTab] = useState<SettingsTabId>(visibleTabs[0]?.id);
-
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    shiftReminders: true,
-    scheduleUpdates: true,
-    shiftRequests: false,
-    pointsUpdates: true,
-  });
-
-  const handleNotificationChange = (key: keyof NotificationSettings) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
 
   return (
     <div className={styles.wrapper}>
@@ -83,25 +59,10 @@ const SettingsPage = () => {
       <div className={styles.content}>
         {activeTab === "shift-templates" && <Templates />}
 
-        {activeTab === "whatsapp-bot" && (
-          <div className={styles.whatsappGrid}>
-            <div className={styles.column}>
-              <WhatsappBotCard
-                profile={MOCK_USER_PROFILE as any}
-                notifications={notifications}
-                onNotificationChange={handleNotificationChange}
-              />
-            </div>
-            <div className={styles.column}>
-              <ScheduleDeliveryCard />
-            </div>
-          </div>
-        )}
+        {activeTab === "whatsapp-bot" && <NotificationsTemplate />}
 
         {activeTab === "points-rules" && <PointsRulesTemplate />}
-        {activeTab === "scheduling-rules" && (
-          <div>Scheduling Rules Setup View</div>
-        )}
+        {activeTab === "scheduling-rules" && <SchedulingRulesTemplate />}
         {activeTab === "roles-contracts" && (
           <div>Roles & Contracts Setup View</div>
         )}

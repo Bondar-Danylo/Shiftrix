@@ -68,8 +68,9 @@
 }
 
 .cardContent {
-  background: var(--ligh-grey_color);
+  background: var(--grey_color);
   border-radius: var(--small_radius);
+  border: 1px solid var(--ligh-grey_color);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -157,6 +158,10 @@
   background: var(--white_color);
   color: var(--dark-grey_color);
   border: 1px solid var(--ligh-grey_color);
+  transition: all ease 0.2s;
+  &:hover {
+    background: var(--ligh-grey_color);
+  }
 }
 
 // Responsive 

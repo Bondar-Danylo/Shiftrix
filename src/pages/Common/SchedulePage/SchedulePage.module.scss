@@ -1,0 +1,14 @@
+.schedulePage {
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Responsive 
+@media screen and (max-width: 768px) {
+  .schedulePage {
+    gap: 15px;
+  }
+}

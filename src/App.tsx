@@ -17,6 +17,7 @@ import SettingsPage from "./pages/Common/SettingsPage/SettingsPage";
 
 // Layouts
 import MainLayout from "@/layouts/MainLayout/MainLayout";
+import SchedulePage from "./pages/Common/SchedulePage/SchedulePage";
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem("userToken");
@@ -46,6 +47,8 @@ const App = () => {
           <Route path="profile" element={<ProfilePage />} />
 
           <Route path="settings" element={<SettingsPage />} />
+
+          <Route path="schedule" element={<SchedulePage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" />} />

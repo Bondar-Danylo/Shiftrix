@@ -1,0 +1,148 @@
+.scheduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__dropdown {
+    min-width: 190px;
+    & > button {
+        height: 40px;
+    }
+  }
+
+  &__btn {
+    font-weight: var(--weight-medium);
+    border-radius: var(--small_radius);
+    box-shadow: var(--light_shadow);
+
+    &_publish {
+      background: var(--main_color);
+      color: var(--white_color);
+      height: 40px;
+    }
+  }
+}
+.scheduleNavigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__title {
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+    color: var(--graphite_color);
+    min-width: 150px;
+    text-align: center;
+  }
+
+  &__btn {
+    background: var(--white_color);
+    border: 1px solid var(--ligh-grey_color);
+    border-radius: var(--tiny_radius);
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--dark-grey_color);
+    transition: background 0.2s ease, color 0.2s ease;
+    
+    &:hover { 
+      background: var(--light_bg);
+      color: var(--black_color);
+    }
+  }
+  &__icon {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+.viewToggle {
+  display: flex;
+  background-color: var(--ligh-grey_color);
+  padding: 4px;
+  border-radius: var(--small_radius);
+  height: 35px;
+
+  &__btn {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    font-size: var(--size-sm);
+    border-radius: var(--tiny_radius);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    color: var(--dark-grey_color);
+    transition: all 0.2s ease;
+
+    &_active {
+      background: var(--white_color);
+      color: var(--main_color);
+      box-shadow: var(--light_shadow);
+    }
+  }
+}
+
+// Responsive
+@media screen and (max-width: 1200px) {
+    .scheduleHeader {
+        flex-direction: column;
+        gap: 15px;
+        align-items: start;
+        &__dropdown {
+            width: 244px;
+            & > button {
+                height: 35px;
+            }
+        }
+        &__btn_publish {
+            height: 35px;
+        }
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .scheduleNavigation{
+        &__btn {
+            width: 30px;
+            height: 30px;
+        }
+        &__title {
+            font-size: var(--size-lg);
+        }
+    }
+    .scheduleHeader {
+        &__left, &__right {
+            flex-direction: column;
+            width: 100%;
+        }
+        &__dropdown {
+            width: 100%;
+            max-width: unset;
+        }
+        &__btn_publish {
+            width: 100%;
+        }
+    }
+    .viewToggle {
+        width: 100%;
+        &__btn {
+            flex: 1;
+        }
+    }
+}

@@ -4,13 +4,18 @@ export interface Employee {
   id: string | number;
   name: string;
   role: string;
-  avatarUrl: string;
+  photo_url: string;
   status: "Working" | "Vacation" | "Sick Leave" | "Available" | "Day Off";
-  whatsappConnected: boolean;
-  points: number;
+  is_bot_connected: boolean;
+  points_balance: number;
   currentHours: number;
-  maxHours: number;
+  max_hours: number;
   reliabilityRate: number;
+  position_id: string | number;
+  department_id?: string | number;
+  email?:string;
+  phone_number?: string | number;
+  created_at?:  string;
 }
 
 export interface EmployeesTableProps {

@@ -1,0 +1,67 @@
+.shiftCard {
+  background: var(--light-blue_bg);
+  border-left: 4px solid var(--main_color);
+  border-radius: var(--small_radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--light_shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &_clickable {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &_past {
+    background: var(--ligh-grey_color);
+    border-left-color: var(--graphite_color);
+    cursor: default;
+    pointer-events: none;
+    
+    .pointsBadge {
+      background: var(--dark-grey_color);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .time {
+      font-size: var(--size-sm);
+      color: var(--graphite_color);
+      font-weight: var(--weight-medium);
+    }
+
+    .pointsBadge {
+      background: var(--main_color);
+      color: var(--white_color);
+      font-size: var(--size-sm);
+      padding: 3px;
+      border-radius: 4px;
+      font-weight: var(--weight-semibold);
+    }
+  }
+
+  &__title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    color: var(--graphite_color);
+  }
+
+  &__sub {
+    font-size: var(--size-sm);
+    color: var(--dark-grey_color);
+  }
+}

@@ -3,7 +3,7 @@ import styles from "./LoginPage.module.scss";
 
 // Icons
 import emailIcon from "@/assets/icons/email_icon.svg";
-import padlock from "@/assets/icons/padlock_icon.svg";
+import PadlockIcon from "@/assets/icons/padlock_icon.svg?react";
 import eyeIcon from "@/assets/icons/eye_icon.svg";
 import eyeOffIcon from "@/assets/icons/eye-off_icon.svg";
 
@@ -60,26 +60,29 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
-
     if (!validate()) return;
-
     setIsLoading(true);
 
     try {
-      console.log("Data sent:", formData);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const apiUrl = import.meta.env.VITE_API_URL;
 
-      const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-      const role = formData.email.toLowerCase().includes("admin")
-        ? "admin"
-        : "user";
+      const response = await fetch(`${apiUrl}/login.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-      localStorage.setItem("userToken", fakeToken);
-      localStorage.setItem("userRole", role);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+      localStorage.setItem("userToken", data.token);
+      localStorage.setItem("userRole", data.role);
 
       navigate("/");
-    } catch (err) {
-      setErrors({ general: "Incorrect password or email. Please try again." });
+    } catch (err: any) {
+      setErrors({ general: err.message || "Incorrect password or email." });
     } finally {
       setIsLoading(false);
     }
@@ -125,11 +128,7 @@ const LoginPage = () => {
             className={`${styles.item} ${errors.password ? styles.itemError : ""}`}
           >
             <div className={styles.item__image}>
-              <img
-                src={padlock}
-                alt="Padlock Icon"
-                className={styles.item__icon}
-              />
+              <PadlockIcon className={styles.item__icon} />
             </div>
             <div className={styles.inputWrapper}>
               <input

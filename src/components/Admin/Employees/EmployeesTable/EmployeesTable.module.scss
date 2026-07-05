@@ -96,11 +96,21 @@
   text-align: center;
 }
 
-.statusWorking { background-color: var(--light-green_color); color: var(--dark-green_color); }
-.statusVacation { background-color: var(--light-blue_color); color: var(--main_color); }
-.statusSick { background-color: var(--light-red_color); color: var(--red_color); }
-.statusAvailable { background-color: var(--light-orange_color); color: var(--dark-orange_color); }
-.statusDayOff { background-color: var(--light-purple_color); color: var(--purple_color); }
+.statusWorking { 
+  background-color: var(--light-green_color); color: var(--dark-green_color); 
+}
+.statusVacation { 
+  background-color: var(--light-blue_color); color: var(--main_color); 
+}
+.statusSick { 
+  background-color: var(--light-red_color); color: var(--red_color); 
+}
+.statusAvailable { 
+  background-color: var(--light-orange_color); color: var(--dark-orange_color); 
+}
+.statusDayOff { 
+  background-color: var(--light-purple_color); color: var(--purple_color); 
+}
 
 .whatsapp {
   display: flex;

@@ -9,7 +9,7 @@ import WhatsappIcon from "@/assets/icons/whatsapp_icon.svg?react";
 // Components
 import CardLoader from "@/components/Common/Loader/Loader";
 import EmployeeModal from "../EmployeeModal/EmployeeModal";
-import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal"; // <-- Импортируем наш попап
+import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal";
 
 // Imports
 import { useState } from "react";
@@ -56,28 +56,17 @@ const EmployeesTable = ({
   };
 
   const getStatusClass = (status: string) => {
-    switch (status) {
-      case "Working":
-        return styles.statusWorking;
-      case "Vacation":
-        return styles.statusVacation;
-      case "Sick Leave":
-        return styles.statusSick;
-      case "Available":
-        return styles.statusAvailable;
-      case "Day Off":
-        return styles.statusDayOff;
-      default:
-        return "";
-    }
-  };
+    const normalizedStatus = status.toLowerCase().replace(" ", "_");
 
-  const getReliabilityTag = (rate: number) => {
-    if (rate >= 95)
-      return (
-        <span className={`${styles.tag} ${styles.excellent}`}>Excellent</span>
-      );
-    return <span className={`${styles.tag} ${styles.good}`}>Good</span>;
+    const statusMap: Record<string, string> = {
+      working: styles.statusWorking,
+      vacation: styles.statusVacation,
+      sick_leave: styles.statusSick,
+      off: styles.statusDayOff,
+      available: styles.statusAvailable,
+    };
+
+    return statusMap[normalizedStatus] || "";
   };
 
   if (isLoading) {
@@ -94,7 +83,6 @@ const EmployeesTable = ({
             <th>WHATSAPP</th>
             <th>POINTS</th>
             <th>WEEKLY HOURS</th>
-            <th>RELIABILITY</th>
             <th className={styles.alignRight}>ACTIONS</th>
           </tr>
         </thead>
@@ -114,11 +102,16 @@ const EmployeesTable = ({
             </tr>
           ) : (
             employees.map((emp) => {
-              const isOverworked = emp.currentHours > emp.maxHours;
+              const isOverworked = emp.currentHours > emp.max_hours;
               const progressWidth = Math.min(
-                (emp.currentHours / emp.maxHours) * 100,
+                (emp.currentHours / emp.max_hours) * 100,
                 100,
               );
+
+              const avatarCheck: string | undefined =
+                `${import.meta.env.VITE_API_MAIN}/${emp.photo_url}`
+                  .split("/")
+                  .at(-1);
 
               return (
                 <tr
@@ -129,13 +122,19 @@ const EmployeesTable = ({
                   <td>
                     <div className={styles.userCell}>
                       <img
-                        src={emp.avatarUrl}
+                        src={
+                          avatarCheck != "null"
+                            ? `${import.meta.env.VITE_API_MAIN}/${emp.photo_url}`
+                            : `https://api.dicebear.com/10.x/avataaars/png?seed=${emp.id}`
+                        }
                         alt={emp.name}
                         className={styles.avatar}
                       />
                       <div className={styles.userInfo}>
                         <span className={styles.userName}>{emp.name}</span>
-                        <span className={styles.userRole}>{emp.role}</span>
+                        <span className={styles.userRole}>
+                          {emp.position_id}
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -144,12 +143,12 @@ const EmployeesTable = ({
                     <span
                       className={`${styles.statusBadge} ${getStatusClass(emp.status)}`}
                     >
-                      {emp.status}
+                      {emp.status.toUpperCase()}
                     </span>
                   </td>
 
                   <td>
-                    {emp.whatsappConnected ? (
+                    {emp.is_bot_connected ? (
                       <div className={`${styles.whatsapp} ${styles.connected}`}>
                         <WhatsappIcon />
                         <span>Connected</span>
@@ -168,7 +167,7 @@ const EmployeesTable = ({
 
                   <td>
                     <span className={styles.points}>
-                      <strong>{emp.points}</strong> pts
+                      <strong>{emp.points_balance}</strong> pts
                     </span>
                   </td>
 
@@ -186,7 +185,7 @@ const EmployeesTable = ({
                         </span>
                         <span className={styles.maxHoursText}>
                           {" "}
-                          / {emp.maxHours}h
+                          / {emp.max_hours}h
                         </span>
                       </div>
                       <div className={styles.progressBarBg}>
@@ -201,15 +200,6 @@ const EmployeesTable = ({
                           style={{ width: `${progressWidth}%` }}
                         />
                       </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div className={styles.reliabilityCell}>
-                      <span className={styles.rateText}>
-                        {emp.reliabilityRate}%
-                      </span>
-                      {getReliabilityTag(emp.reliabilityRate)}
                     </div>
                   </td>
 

@@ -1,0 +1,330 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.modalContent {
+  background: var(--white_color);
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--small_radius);
+  box-shadow: var(--light_shadow);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--ligh-grey_color);
+
+  .modalTitle {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    color: var(--graphite_color);
+  }
+
+  .closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--dark-grey_color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    &:hover {
+      color: var(--graphite_color);
+    }
+  }
+}
+
+.shiftMeta {
+  padding: 16px 24px;
+  background: var(--light-blue_bg);
+  border-left: 4px solid var(--main_color);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .metaRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .timeInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      color: var(--graphite_color);
+    }
+
+    .timeText {
+      font-size: var(--size-md);
+      font-weight: var(--weight-semibold);
+      color: var(--graphite_color);
+    }
+  }
+
+  .pointsBadge {
+    background: var(--main_color);
+    color: var(--white_color);
+    font-size: var(--size-sm);
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-weight: var(--weight-semibold);
+  }
+
+  .dateText, .roleText {
+    font-size: var(--size-sm);
+    color: var(--dark-grey_color);
+  }
+
+  .roleText {
+    font-weight: var(--weight-medium);
+    color: var(--graphite_color);
+  }
+}
+
+.modalBody {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: var(--size-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--graphite_color);
+  margin: 0 0 4px;
+}
+
+.employeeList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.employeeCard, .searchResultRow {
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--light_shadow);
+}
+
+.empInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--ligh-grey_color);
+  }
+
+  .empName {
+    font-size: var(--size-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--graphite_color);
+  }
+
+  .empRole {
+    font-size: var(--size-sm);
+    color: var(--dark-grey_color);
+  }
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--dark-grey_color);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    color: var(--red_color);
+  }
+}
+
+.addEmployeeTrigger {
+  border: 1px dashed var(--dark-grey_color);
+  background: none;
+  border-radius: var(--small_radius);
+  padding: 12px;
+  font-size: var(--size-sm);
+  font-weight: var(--weight-medium);
+  color: var(--main_color);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--light-blue_bg);
+    border-color: var(--main_color);
+  }
+}
+
+.searchContainer {
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  padding: 16px;
+  background: var(--white_color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--light_shadow);
+}
+
+.searchLabel {
+  font-size: var(--size-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--dark-grey_color);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .searchIcon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--dark-grey_color);
+  }
+
+  .searchInput {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    border: 1px solid var(--ligh-grey_color);
+    border-radius: 6px;
+    font-size: var(--size-sm);
+    color: var(--graphite_color);
+    outline: none;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: var(--main_color);
+    }
+  }
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.searchResultRow {
+  box-shadow: none;
+  border-color: var(--ligh-grey_color);
+}
+
+.addButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--dark-grey_color);
+  cursor: pointer;
+  padding: 0 8px;
+  transition: color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    color: var(--main_color);
+    transform: scale(1.1);
+  }
+}
+
+.cancelSearchBtn {
+  background: var(--ligh-grey_color);
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: var(--size-sm);
+  font-weight: var(--weight-medium);
+  color: var(--graphite_color);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--dark-grey_color);
+    color: var(--white_color);
+  }
+}
+
+.modalFooter {
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--ligh-grey_color);
+}
+
+.doneBtn {
+    width: 100%;
+    background-color: var(--main_color);
+    color: var(--white_color);
+    border-radius: var(--small_radius);
+}
+
+.noResults {
+  text-align: center;
+  font-size: var(--size-sm);
+  color: var(--dark-grey_color);
+  padding: 8px 0;
+}
+
+// Responsive
+@media screen and (max-width: 575px) {
+    .modalContent {
+        margin: 15px;
+    }
+    .modalHeader, .modalBody, .modalFooter {
+        padding: 15px;
+    }
+    .shiftMeta {
+        padding: 15px;
+    }
+}

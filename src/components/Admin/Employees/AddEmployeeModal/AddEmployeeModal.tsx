@@ -1,3 +1,6 @@
+// Imports
+import React, { useState, useEffect, useRef } from "react";
+
 // Styles
 import styles from "./AddEmployeeModal.module.scss";
 
@@ -16,9 +19,6 @@ import type {
   StatusOption,
 } from "./AddEmployeeModal.types";
 
-// Imports
-import React, { useState, useEffect, useRef } from "react";
-
 const STATUS_OPTIONS: StatusOption[] = [
   { id: "Available", name: "Available" },
   { id: "Working", name: "Working" },
@@ -29,7 +29,7 @@ const STATUS_OPTIONS: StatusOption[] = [
 
 const INITIAL_STATE: FormState = {
   name: "",
-  role: "",
+  role: "employee",
   email: "",
   phone: "",
   selectedStatus: STATUS_OPTIONS[0],
@@ -37,6 +37,8 @@ const INITIAL_STATE: FormState = {
   initialPoints: 0,
   whatsappConnected: false,
   avatarUrl: "",
+  selectedDepartment: null,
+  selectedPosition: null,
 };
 
 const AddEmployeeModal = ({
@@ -46,7 +48,9 @@ const AddEmployeeModal = ({
   employeeToEdit,
 }: AddEmployeeModalProps) => {
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
-  const [, setAvatarFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = Boolean(employeeToEdit);
@@ -56,27 +60,62 @@ const AddEmployeeModal = ({
       document.body.style.overflow = "hidden";
 
       if (employeeToEdit) {
-        const currentStatus =
-          STATUS_OPTIONS.find((opt) => opt.id === employeeToEdit.status) ||
-          STATUS_OPTIONS[0];
-
         setForm({
           name: employeeToEdit.name || "",
-          role: employeeToEdit.role || "",
+          role: employeeToEdit.role || "employee",
           email: employeeToEdit.email || "",
           phone: employeeToEdit.phone || "",
-          selectedStatus: currentStatus,
-          maxHours: employeeToEdit.maxHours ?? 40,
-          initialPoints: employeeToEdit.points ?? 0,
-          whatsappConnected: employeeToEdit.whatsappConnected || false,
-          avatarUrl: employeeToEdit.avatarUrl || "",
+
+          selectedStatus:
+            STATUS_OPTIONS.find(
+              (opt) =>
+                opt.id.toLowerCase() === employeeToEdit.status?.toLowerCase(),
+            ) || STATUS_OPTIONS[0],
+          maxHours: employeeToEdit.max_hours ?? 40,
+          initialPoints: employeeToEdit.points_balance ?? 0,
+          whatsappConnected: employeeToEdit.is_bot_connected || false,
+          avatarUrl: employeeToEdit.photo_url
+            ? employeeToEdit.photo_url.includes("http")
+              ? employeeToEdit.photo_url
+              : `${import.meta.env.VITE_API_MAIN}/${employeeToEdit.photo_url}`
+            : `https://api.dicebear.com/10.x/avataaars/png?seed=${employeeToEdit.id}`,
+          selectedDepartment: null,
+          selectedPosition: null,
         });
       } else {
         setForm(INITIAL_STATE);
       }
+
+      fetch(`${import.meta.env.VITE_API_URL}/get_options.php`)
+        .then((res) => res.json())
+        .then((data) => {
+          const fetchedDepartments = data.departments || [];
+          const fetchedPositions = data.positions || [];
+
+          setDepartments(fetchedDepartments);
+          setPositions(fetchedPositions);
+
+          if (employeeToEdit) {
+            setForm((prev) => ({
+              ...prev,
+              selectedDepartment:
+                fetchedDepartments.find(
+                  (d: any) =>
+                    String(d.id) === String(employeeToEdit.department_id),
+                ) || null,
+              selectedPosition:
+                fetchedPositions.find(
+                  (p: any) =>
+                    String(p.id) === String(employeeToEdit.position_id),
+                ) || null,
+            }));
+          }
+        })
+        .catch((err) => console.error("Error", err));
     } else {
       document.body.style.overflow = "unset";
     }
+
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -104,45 +143,99 @@ const AddEmployeeModal = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
       setForm((prev) => ({ ...prev, avatarUrl: URL.createObjectURL(file) }));
     }
   };
 
-  const triggerFileSelect = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerFileSelect = () => fileInputRef.current?.click();
 
   const handleReset = () => {
     setForm(INITIAL_STATE);
-    setAvatarFile(null);
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.name.trim() || !form.role.trim()) {
-      alert("Please fill in Name and Role");
+    if (!form.name.trim()) {
+      alert("Please fill in Name");
       return;
     }
 
-    onAdd({
-      ...(employeeToEdit && { id: employeeToEdit.id }),
-      name: form.name,
-      role: form.role,
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      status: form.selectedStatus.id,
-      maxHours: form.maxHours,
-      points: form.initialPoints,
-      whatsappConnected: form.whatsappConnected,
-      avatarUrl:
-        form.avatarUrl ||
-        `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(form.name)}`,
-    });
+    setIsLoading(true);
 
-    handleReset();
+    const formData = new FormData();
+
+    if (isEditMode && employeeToEdit?.id) {
+      formData.append("id", String(employeeToEdit.id));
+    }
+
+    formData.append("name", form.name);
+    formData.append("role", "employee");
+    formData.append("email", form.email.trim());
+    formData.append("phone", form.phone.trim());
+    formData.append("status", form.selectedStatus.id.toLowerCase());
+    formData.append("maxHours", String(form.maxHours));
+    formData.append("initialPoints", String(form.initialPoints));
+    formData.append("whatsappConnected", form.whatsappConnected ? "1" : "0");
+    formData.append(
+      "department_id",
+      form.selectedDepartment ? String(form.selectedDepartment.id) : "0",
+    );
+    formData.append(
+      "position_id",
+      form.selectedPosition ? String(form.selectedPosition.id) : "0",
+    );
+
+    const file = fileInputRef.current?.files?.[0];
+    if (file) formData.append("photo", file);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/save_employee.php`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      const result = await response.json();
+      if (result.success) {
+        if (result.success) {
+          onAdd({
+            id: employeeToEdit?.id,
+            name: form.name,
+            role: form.role,
+            email: form.email,
+            phone: form.phone,
+            status: form.selectedStatus.id as
+              | "Working"
+              | "Vacation"
+              | "Sick Leave"
+              | "Available"
+              | "Day Off",
+            initialPoints: form.initialPoints,
+            points_balance: form.initialPoints,
+            max_hours: form.maxHours,
+            is_bot_connected: form.whatsappConnected,
+            photo_url: result.path || form.avatarUrl,
+            position_id: form.selectedPosition
+              ? Number(form.selectedPosition.id)
+              : 0,
+            department_id: form.selectedDepartment
+              ? Number(form.selectedDepartment.id)
+              : 0,
+          });
+          handleReset();
+        }
+        handleReset();
+      } else {
+        alert("Error: " + (result.error || "Unknown"));
+      }
+    } catch (err) {
+      alert("Server connection failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -158,7 +251,7 @@ const AddEmployeeModal = ({
           </h2>
           <p className={styles.subtitle}>
             {isEditMode
-              ? "Update the employee information and account settings below"
+              ? "Update the employee information below"
               : "Fill in the information below to add a new team member"}
           </p>
         </div>
@@ -204,6 +297,35 @@ const AddEmployeeModal = ({
 
             <div className={styles.row}>
               <div className={styles.inputGroup}>
+                <label className={styles.label}>Department</label>
+                <Dropdown
+                  options={departments}
+                  value={form.selectedDepartment}
+                  renderOption={(o: any) => <span>{o.name}</span>}
+                  onSelect={(opt) =>
+                    setForm((p) => ({ ...p, selectedDepartment: opt }))
+                  }
+                  getOptionLabel={(o: any) => o.name}
+                  className={styles.customDropdown}
+                />
+              </div>
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Position</label>
+                <Dropdown
+                  options={positions}
+                  value={form.selectedPosition}
+                  renderOption={(o: any) => <span>{o.name}</span>}
+                  onSelect={(opt) =>
+                    setForm((p) => ({ ...p, selectedPosition: opt }))
+                  }
+                  getOptionLabel={(o: any) => o.name}
+                  className={styles.customDropdown}
+                />
+              </div>
+            </div>
+
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
                 <label className={styles.label}>Full Name *</label>
                 <input
                   type="text"
@@ -215,17 +337,17 @@ const AddEmployeeModal = ({
                   required
                 />
               </div>
-
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Role / Position *</label>
+                <label className={styles.label}>
+                  {isEditMode ? "Current Points" : "Initial Points"}
+                </label>
                 <input
-                  type="text"
-                  name="role"
+                  type="number"
+                  name="initialPoints"
                   className={styles.input}
-                  placeholder="e.g. Chef, Waiter"
-                  value={form.role}
+                  min={0}
+                  value={form.initialPoints}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
             </div>
@@ -242,7 +364,6 @@ const AddEmployeeModal = ({
                   onChange={handleInputChange}
                 />
               </div>
-
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Phone Number</label>
                 <input
@@ -268,7 +389,6 @@ const AddEmployeeModal = ({
                   className={styles.customDropdown}
                 />
               </div>
-
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Weekly Max Hours</label>
                 <input
@@ -276,28 +396,11 @@ const AddEmployeeModal = ({
                   name="maxHours"
                   className={styles.input}
                   min={1}
-                  max={168}
+                  max={56}
                   value={form.maxHours}
                   onChange={handleInputChange}
                 />
               </div>
-            </div>
-
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label className={styles.label}>
-                  {isEditMode ? "Current Points" : "Initial Points"}
-                </label>
-                <input
-                  type="number"
-                  name="initialPoints"
-                  className={styles.input}
-                  min={0}
-                  value={form.initialPoints}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className={styles.inputGroup} />
             </div>
 
             <div className={styles.checkboxGroup}>
@@ -329,8 +432,13 @@ const AddEmployeeModal = ({
               type="submit"
               size="normal"
               className={styles.submitBtn}
+              disabled={isLoading}
             >
-              {isEditMode ? "Save Changes" : "Add Employee"}
+              {isLoading
+                ? "Saving..."
+                : isEditMode
+                  ? "Save Changes"
+                  : "Add Employee"}
             </Button>
           </div>
         </form>

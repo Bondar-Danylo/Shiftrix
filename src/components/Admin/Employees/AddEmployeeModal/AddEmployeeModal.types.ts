@@ -3,7 +3,8 @@ import type { Employee } from "../EmployeesTable/EmployeeTable.types";
 export interface NewEmployeeData extends Omit<Employee, "id" | "points" | "currentHours" | "reliabilityRate"> {
   email: string;
   phone: string;
-  points: number;
+  initialPoints: number;
+  department_id: number;
 }
 
 export interface AddEmployeeModalProps {
@@ -28,4 +29,6 @@ export interface FormState {
   initialPoints: number;
   whatsappConnected: boolean;
   avatarUrl: string;
+  selectedDepartment: any | null; 
+  selectedPosition: any | null;
 }

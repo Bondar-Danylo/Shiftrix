@@ -14,23 +14,24 @@
   }
 
   &_past {
-    background-color: var(--grey_color);
-    color: var(--dark-grey_color);
-    opacity: 0.65;
-    cursor: not-allowed;
+    background-color: var(--grey_color) !important;
+    color: var(--dark-grey_color) !important;
+    opacity: 0.65 !important;
+    pointer-events:none;
+    cursor: not-allowed !important;
 
     button, .scheduleDay__addShiftBtn { 
-      pointer-events: none; 
+      pointer-events: none !important; 
     }
     .scheduleDay__number { 
-      font-weight: var(--weight-light); 
+      font-weight: var(--weight-light) !important; 
     }
     .scheduleDay__avatar { 
-      filter: grayscale(100%); 
-      opacity: 0.6; 
+      filter: grayscale(100%) !important; 
+      opacity: 0.6 !important; 
     }
     .scheduleDay__footer { 
-      opacity: 0.4; 
+      opacity: 0.4 !important; 
     }
   }
 

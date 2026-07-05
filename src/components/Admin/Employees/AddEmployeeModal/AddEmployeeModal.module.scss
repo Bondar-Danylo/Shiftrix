@@ -19,7 +19,6 @@
   max-width: 500px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   position: relative;
-  overflow: hidden;
   animation: modalFadeIn 0.2s ease-out;
 }
 
@@ -43,6 +42,8 @@
   padding: 24px 24px 16px 24px;
   border-bottom: 1px solid var(--ligh-grey_color);
   background: var(--menu_gradient);
+  border-top-left-radius: var(--normal_radius);
+  border-top-right-radius: var(--normal_radius);
 }
 
 .title {
@@ -129,6 +130,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  border-bottom-left-radius: var(--normal_radius);
+  border-bottom-right-radius: var(--normal_radius);
 }
 
 .cancelBtn {
@@ -228,13 +231,18 @@
 }
 
 .customDropdown {
-  width: 100%;  
+  width: 100%; 
 }
 
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from { 
+    opacity: 0; 
+    transform: scale(0.96); 
+  }
+  to { 
+    opacity: 1; transform: scale(1); 
+  }
 }
 
 // Responsive

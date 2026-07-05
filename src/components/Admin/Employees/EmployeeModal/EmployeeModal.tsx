@@ -37,9 +37,12 @@ const EmployeeModal = ({
   if (!isOpen || !employee) return null;
 
   const progressWidth = Math.min(
-    (employee.currentHours / employee.maxHours) * 100,
+    (employee.currentHours / employee.max_hours) * 100,
     100,
   );
+
+  const avatarCheck: string | undefined =
+    `${import.meta.env.VITE_API_MAIN}/${employee.photo_url}`.split("/").at(-1);
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -50,23 +53,31 @@ const EmployeeModal = ({
 
         <div className={styles.header}>
           <img
-            src={employee.avatarUrl}
+            src={
+              avatarCheck != "null"
+                ? `${import.meta.env.VITE_API_MAIN}/${employee.photo_url}`
+                : `https://api.dicebear.com/10.x/avataaars/png?seed=${employee.id}`
+            }
             alt={employee.name}
             className={styles.avatar}
           />
           <div className={styles.headerInfo}>
             <h2 className={styles.name}>{employee.name}</h2>
-            <p className={styles.role}>{employee.role}</p>
+            <p className={styles.role}>
+              {employee.role.charAt(0).toUpperCase() + employee.role.slice(1)}
+            </p>
             <div className={styles.badges}>
               <span className={`${styles.badge} ${styles.statusVacation}`}>
-                {employee.status}
+                {employee.status.charAt(0).toUpperCase() +
+                  employee.status.slice(1)}
               </span>
-              <span className={`${styles.badge} ${styles.statusActive}`}>
-                Active
-              </span>
-              {employee.whatsappConnected && (
+              {employee.is_bot_connected ? (
                 <span className={`${styles.badge} ${styles.statusWhatsapp}`}>
                   WhatsApp Connected
+                </span>
+              ) : (
+                <span className={`${styles.badge} ${styles.statusNotWhatsapp}`}>
+                  WhatsApp NOT Connected
                 </span>
               )}
             </div>
@@ -80,22 +91,25 @@ const EmployeeModal = ({
               <div className={styles.infoRow}>
                 <MailIcon className={styles.infoIcon} />
                 <span className={styles.label}>Email:</span>
-                <a
-                  href={`mailto:${employee.name.toLowerCase().replace(" ", ".")}@restaurant.com`}
-                  className={styles.link}
-                >
-                  {employee.name.toLowerCase().replace(" ", ".")}@restaurant.com
+                <a href={`mailto:${employee.email}`} className={styles.link}>
+                  {employee.email}
                 </a>
               </div>
               <div className={styles.infoRow}>
                 <PhoneIcon className={styles.infoIcon} />
                 <span className={styles.label}>Phone:</span>
-                <span className={styles.value}>+1 (555) 345-6789</span>
+                <span className={styles.value}>
+                  {employee.phone_number ? employee.phone_number : "HIDEN"}
+                </span>
               </div>
               <div className={styles.infoRow}>
                 <ScheduleIcon className={styles.infoIcon} />
                 <span className={styles.label}>Joined:</span>
-                <span className={styles.value}>March 10, 2024 (2 years)</span>
+                <span className={styles.value}>
+                  {employee.created_at
+                    ? new Date(employee.created_at).toLocaleDateString()
+                    : "N/A"}
+                </span>
               </div>
             </div>
           </div>
@@ -111,7 +125,7 @@ const EmployeeModal = ({
                   </span>
                 </div>
                 <span className={styles.cardSubtext}>
-                  of {employee.maxHours}h contract
+                  of {employee.max_hours}h contract
                 </span>
                 <div className={styles.progressBg}>
                   <div
@@ -123,9 +137,7 @@ const EmployeeModal = ({
 
               <div className={styles.statCard}>
                 <span className={styles.cardLabel}>Reliability</span>
-                <span className={styles.cardValue}>
-                  {employee.reliabilityRate}%
-                </span>
+                <span className={styles.cardValue}>89%</span>
                 <span
                   className={`${styles.tag} ${employee.reliabilityRate >= 95 ? styles.excellent : styles.good}`}
                 >
@@ -135,7 +147,9 @@ const EmployeeModal = ({
 
               <div className={`${styles.statCard} ${styles.blueCard}`}>
                 <span className={styles.cardLabelBlue}>Current Points</span>
-                <span className={styles.cardValueBlue}>{employee.points}</span>
+                <span className={styles.cardValueBlue}>
+                  {employee.points_balance}
+                </span>
                 <span className={styles.cardSubtextBlue}>
                   Available balance
                 </span>
@@ -143,7 +157,7 @@ const EmployeeModal = ({
 
               <div className={styles.statCard}>
                 <span className={styles.cardLabel}>Scheduled Hours</span>
-                <span className={styles.cardValue}>{employee.maxHours}h</span>
+                <span className={styles.cardValue}>{employee.max_hours}h</span>
                 <span className={styles.cardSubtext}>This period</span>
               </div>
             </div>

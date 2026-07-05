@@ -1,0 +1,223 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: var(--white_color);
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--normal_radius);
+  box-shadow: var(--main_shadow);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--ligh-grey_color);
+
+  .modalTitle {
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+    color: var(--black_color);
+  }
+
+  .closeBtn {
+    background: none;
+    border: none;
+    color: var(--dark-grey_color);
+    cursor: pointer;
+    line-height: 1;
+    &:hover {
+      color: var(--graphite_color);
+    }
+  }
+}
+
+.filterWrapper {
+  padding: 16px 24px 8px;
+
+  .profSelect {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--ligh-grey_color);
+    border-radius:var(--small_radius);
+    font-size: var(--size-md);
+    color: var(--graphite_color);
+    background-color: var(--white_color);
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+      border-color: var(--main_color);
+    }
+  }
+}
+
+.modalBody {
+  padding: 8px 24px 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--ligh-grey_color);
+    border-radius: 3px;
+  }
+}
+
+.profSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profTitle {
+  font-size: var(--size-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--dark-grey_color);
+  letter-spacing: 0.05em;
+}
+
+.shiftsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shiftRow {
+  background-color: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--main_color);
+    background-color: var(--light-blue_color);
+    box-shadow: var(--light_shadow);
+  }
+}
+
+.shiftInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeRow, .assignedRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--size-md);
+}
+
+.clockIcon, .usersIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--graphite_color);
+}
+
+.timeWindow {
+  font-weight: var(--weight-medium);
+  color: var(--black_color);
+}
+
+.assignedCount {
+  color: var(--dark-grey_color);
+}
+
+.shiftActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.pointsBadge {
+  color: var(--dark-green_color);
+  font-size: var(--size-md);
+  background-color: var(--light-green_color);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: var(--weight-semibold);
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  color: var(--white_color);
+  font-size: var(--size-md);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: var(--main_color);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.modalFooter {
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--ligh-grey_color);
+}
+
+.addShiftModalBtn {
+  width: 100%;
+  justify-content: center;
+  background-color: var(--main_color);
+  color: var(--white_color);
+  border-radius: var(--small_radius);
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--dark-grey_color);
+  font-size: var(--size-md);
+  padding: 20px 0;
+}
+
+.profDropdown {
+    max-width: unset;
+    width: 100%;
+}
+
+// Responsive
+@media screen and (max-width: 575px) {
+    .modalContent {
+        margin: 15px;
+    }
+    .modalHeader, .filterWrapper, .modalBody, .modalFooter {
+        padding: 15px;
+    }
+    .modalBody {
+        gap: 10px;
+    }
+    .pointsBadge {
+        font-size: var(--size-sm);
+    }
+}

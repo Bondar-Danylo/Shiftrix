@@ -12,7 +12,7 @@ export interface PointsTransaction {
   title: string; 
   date: string; 
   amount: number; 
-  type: "earned" | "spent";
+  type: "added" | "removed";
 }
 
 export interface ExtendedEmployeeModalProps extends EmployeeModalProps {

@@ -11,7 +11,10 @@ import AddEmployeeModal from "@/components/Admin/Employees/AddEmployeeModal/AddE
 // Types
 import type { Employee } from "@/components/Admin/Employees/EmployeesTable/EmployeeTable.types";
 import type { NewEmployeeData } from "@/components/Admin/Employees/AddEmployeeModal/AddEmployeeModal.types";
-import type { DictionaryItem } from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
+import type {
+  DictionaryItem,
+  PointTransaction,
+} from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
 
 // Imports
 import { useCallback, useState, useEffect } from "react";
@@ -37,6 +40,9 @@ const EmployeesPage = () => {
     value: "all",
     label: "WhatsApp",
   });
+  const [pointsHistory, setPointsHistory] = useState<
+    Record<string | number, any[]>
+  >({});
 
   useEffect((): void => {
     const loadFiltersData = async (): Promise<void> => {
@@ -57,20 +63,53 @@ const EmployeesPage = () => {
   const fetchEmployees = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/get_employees.php`,
-      );
-      const data = await response.json();
+      const [empResponse, pointsResponse] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/get_employees.php`),
+        fetch(`${import.meta.env.VITE_API_URL}/get_points_history.php`),
+      ]);
 
-      if (data && Array.isArray(data.employees)) {
-        setRawEmployees(data.employees);
+      const empData = await empResponse.json();
+      const pointsData = await pointsResponse.json();
+
+      if (empData && Array.isArray(empData.employees)) {
+        setRawEmployees(empData.employees);
       } else {
-        console.error("Employees not found:", data);
+        console.error("Employees not found:", empData);
         setRawEmployees([]);
       }
+
+      if (pointsData && Array.isArray(pointsData.history)) {
+        const grouped = pointsData.history.reduce(
+          (
+            acc: Record<string | number, any[]>,
+            transaction: PointTransaction,
+          ) => {
+            const userId = transaction.user_id;
+            if (!acc[userId]) {
+              acc[userId] = [];
+            }
+
+            acc[userId].push({
+              id: transaction.id,
+              user_id: transaction.user_id,
+              amount: transaction.amount,
+              title: transaction.reason,
+              date: transaction.created_at,
+              type: transaction.action_type,
+            });
+
+            return acc;
+          },
+          {},
+        );
+        setPointsHistory(grouped);
+      } else {
+        setPointsHistory({});
+      }
     } catch (err) {
-      console.error("Error loading employees", err);
+      console.error("Error loading employees or points history", err);
       setRawEmployees([]);
+      setPointsHistory({});
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +128,6 @@ const EmployeesPage = () => {
       const matchesRole: boolean =
         selectedRole.id === "all" || emp.position_id == selectedRole.id;
 
-      // ИСПРАВЛЕНО: сравниваем с selectedStatus.id
       const matchesStatus: boolean =
         selectedStatus.id === "all" || emp.status === selectedStatus.id;
 
@@ -198,7 +236,7 @@ const EmployeesPage = () => {
       <EmployeesTable
         employees={filteredEmployees}
         isLoading={isLoading}
-        pointsHistory={{}}
+        pointsHistory={pointsHistory}
         onEdit={handleOpenEditModal}
         onDelete={handleDeleteEmployee}
       />

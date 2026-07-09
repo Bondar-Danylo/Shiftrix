@@ -5,6 +5,7 @@ export interface RequestItem {
   with?: RequestUser;
   type: "swap" | "dayoff" | "holiday";
   createdAt: Date;
+  id?: number,
 }
 export interface RequestUser {
   name: string;

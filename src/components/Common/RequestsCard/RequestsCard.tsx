@@ -3,6 +3,7 @@ import styles from "./RequestsCard.module.scss";
 
 // Components
 import Button from "@/components/Common/Button/Button";
+import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal";
 
 // Icons
 import HolidayIcon from "@/assets/icons/holiday_icon.svg?react";
@@ -14,6 +15,7 @@ import RejectIcon from "@/assets/icons/reject_icon.svg?react";
 
 // Imports
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import type { RequestCardProps } from "./RequestsCard.types";
 
 const getRelativeTimeString = (createdAtString: Date): string => {
@@ -32,6 +34,59 @@ const getRelativeTimeString = (createdAtString: Date): string => {
 };
 
 const RequestCard = ({ item }: RequestCardProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState<
+    "approved" | "rejected" | null
+  >(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessed, setIsProcessed] = useState(false);
+
+  const openModal = (action: "approved" | "rejected"): void => {
+    setModalAction(action);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = (): void => {
+    setIsModalOpen(false);
+    setModalAction(null);
+  };
+
+  const handleConfirmStatus = async (): Promise<void> => {
+    if (!modalAction) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/update_request_status.php`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: item.id,
+            status: modalAction,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+
+      setIsProcessed(true);
+      closeModal();
+    } catch (error) {
+      alert("Updating status error");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isProcessed) return null;
+
   return (
     <div className={styles.card}>
       <div className={styles.cardTop}>
@@ -97,6 +152,7 @@ const RequestCard = ({ item }: RequestCardProps) => {
           isLink={false}
           size="normal"
           className={styles.btnApprove}
+          onClick={() => openModal("approved")}
         >
           <CheckIcon />
           Approve
@@ -106,11 +162,30 @@ const RequestCard = ({ item }: RequestCardProps) => {
           isLink={false}
           size="normal"
           className={styles.btnReject}
+          onClick={() => openModal("rejected")}
         >
           <RejectIcon />
           Reject
         </Button>
       </div>
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        title={
+          modalAction === "approved" ? "Approve Request?" : "Reject Request?"
+        }
+        description={
+          modalAction === "approved"
+            ? "Are you sure you want to approve this request?"
+            : "Are you sure you want to reject this request?"
+        }
+        confirmText={modalAction === "approved" ? "Approve" : "Reject"}
+        cancelText="Cancel"
+        variant={modalAction === "rejected" ? "danger" : "primary"}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onConfirm={handleConfirmStatus}
+      />
     </div>
   );
 };

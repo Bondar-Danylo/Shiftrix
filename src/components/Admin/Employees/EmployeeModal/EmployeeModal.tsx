@@ -172,7 +172,7 @@ const EmployeeModal = ({
                 </div>
               ) : (
                 pointsHistory.map((item) => {
-                  const isEarned = item.type === "earned";
+                  const isEarned = item.type === "added";
 
                   return (
                     <div key={item.id} className={styles.historyRow}>

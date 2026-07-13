@@ -24,8 +24,7 @@ const REMIND_OPTIONS: RemindOption[] = [
   { id: "24_hours", label: "24 hours" },
 ];
 
-const DRAFT_KEY = "notifications_form_state";
-const SERVER_KEY = "notifications_server_state";
+const API_URL = `${import.meta.env.VITE_API_URL}/notification_settings.php`;
 
 const DEFAULT_STATE: FormState = {
   notificationLevel: "all",
@@ -43,28 +42,49 @@ const DEFAULT_STATE: FormState = {
   remindBefore: REMIND_OPTIONS[2],
 };
 
-const getInitialState = (): FormState => {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const draft = localStorage.getItem(DRAFT_KEY);
-    if (draft) return JSON.parse(draft);
-
-    const server = localStorage.getItem(SERVER_KEY);
-    return server ? JSON.parse(server) : DEFAULT_STATE;
-  } catch (error) {
-    console.error("Error reading initial state:", error);
-    return DEFAULT_STATE;
-  }
-};
-
 const NotificationsTemplate = () => {
-  const [formData, setFormData] = useState<FormState>(getInitialState);
+  const [formData, setFormData] = useState<FormState>(DEFAULT_STATE);
+  const [serverState, setServerState] = useState<FormState>(DEFAULT_STATE);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
-  }, [formData]);
+  useEffect((): void => {
+    const fetchNotificationSettings = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+
+        const matchedRemindBefore: RemindOption =
+          REMIND_OPTIONS.find((opt) => opt.id === data.remindBeforeId) ||
+          REMIND_OPTIONS[2];
+
+        const fetchedState: FormState = {
+          notificationLevel: data.notificationLevel,
+          quietHoursStart: data.quietHoursStart,
+          quietHoursEnd: data.quietHoursEnd,
+          dailySummary: data.dailySummary,
+          sendTime: data.sendTime,
+          numShifts: data.numShifts,
+          uncoveredShifts: data.uncoveredShifts,
+          recommendations: data.recommendations,
+          weeklySummary: data.weeklySummary,
+          schedulePublished: data.schedulePublished,
+          scheduleUpdated: data.scheduleUpdated,
+          shiftReminder: data.shiftReminder,
+          remindBefore: matchedRemindBefore,
+        };
+        setFormData(fetchedState);
+        setServerState(fetchedState);
+      } catch (error) {
+        console.error("Error fetching notification configuration:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchNotificationSettings();
+  }, []);
 
   const updateField = <K extends keyof FormState>(
     key: K,
@@ -80,58 +100,57 @@ const NotificationsTemplate = () => {
 
   const handleConfirmSave = async (): Promise<void> => {
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const notificationsConfig = {
-      level: formData.notificationLevel,
-      quietHours: {
-        start: formData.quietHoursStart,
-        end: formData.quietHoursEnd,
-      },
-      reports: {
-        daily: {
-          enabled: formData.dailySummary,
-          time: formData.sendTime,
-          include: {
-            numShifts: formData.numShifts,
-            uncoveredShifts: formData.uncoveredShifts,
-            recommendations: formData.recommendations,
-          },
+    try {
+      const payload = {
+        notificationLevel: formData.notificationLevel,
+        quietHoursStart: formData.quietHoursStart,
+        quietHoursEnd: formData.quietHoursEnd,
+        dailySummary: formData.dailySummary,
+        sendTime: formData.sendTime,
+        numShifts: formData.numShifts,
+        uncoveredShifts: formData.uncoveredShifts,
+        recommendations: formData.recommendations,
+        weeklySummary: formData.weeklySummary,
+        schedulePublished: formData.schedulePublished,
+        scheduleUpdated: formData.scheduleUpdated,
+        shiftReminder: formData.shiftReminder,
+        remindBeforeId: formData.remindBefore.id,
+      };
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        weekly: { enabled: formData.weeklySummary },
-      },
-      events: {
-        published: formData.schedulePublished,
-        updated: formData.scheduleUpdated,
-        reminder: {
-          enabled: formData.shiftReminder,
-          before: formData.remindBefore.id,
-        },
-      },
-    };
+        body: JSON.stringify(payload),
+      });
 
-    console.log("Successfully saved to server:", notificationsConfig);
+      if (!response.ok)
+        throw new Error("Failed to update notification database fields");
 
-    localStorage.setItem(SERVER_KEY, JSON.stringify(formData));
-
-    setIsSaving(false);
-    setIsModalOpen(false);
+      setServerState(formData);
+      console.log("Notification settings updated successfully in MySQL");
+    } catch (error) {
+      console.error("Error updating configuration workflow:", error);
+    } finally {
+      setIsSaving(false);
+      setIsModalOpen(false);
+    }
   };
 
   const handleCancel = (): void => {
-    try {
-      const serverState = localStorage.getItem(SERVER_KEY);
-      const rollbackState = serverState
-        ? JSON.parse(serverState)
-        : DEFAULT_STATE;
-
-      setFormData(rollbackState);
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(rollbackState));
-    } catch (error) {
-      console.error("Error during rollback:", error);
-    }
+    setFormData(serverState);
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className={styles.wrapper}>
+        Loading notification configurations...
+      </div>
+    );
+  }
 
   return (
     <>

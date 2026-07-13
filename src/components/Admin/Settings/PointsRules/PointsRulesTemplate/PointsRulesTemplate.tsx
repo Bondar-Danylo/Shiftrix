@@ -27,8 +27,7 @@ const EXPIRATION_OPTIONS: ExpirationOption[] = [
   { id: "never", label: "Never expire" },
 ];
 
-const DRAFT_KEY = "points_rules_form_state";
-const SERVER_KEY = "points_rules_server_state";
+const API_URL = `${import.meta.env.VITE_API_URL}/points_rules.php`;
 
 const DEFAULT_STATE: PointsFormState = {
   defaultPoints: "3",
@@ -39,28 +38,44 @@ const DEFAULT_STATE: PointsFormState = {
   reserveAdvance: true,
 };
 
-const getInitialState = (): PointsFormState => {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const draft = localStorage.getItem(DRAFT_KEY);
-    if (draft) return JSON.parse(draft);
-
-    const server = localStorage.getItem(SERVER_KEY);
-    return server ? JSON.parse(server) : DEFAULT_STATE;
-  } catch (error) {
-    console.error("Error reading initial points state:", error);
-    return DEFAULT_STATE;
-  }
-};
-
 const PointsRulesTemplate = () => {
-  const [formData, setFormData] = useState<PointsFormState>(getInitialState);
+  const [formData, setFormData] = useState<PointsFormState>(DEFAULT_STATE);
+  const [serverState, setServerState] =
+    useState<PointsFormState>(DEFAULT_STATE);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect((): void => {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
-  }, [formData]);
+    const fetchSettings = async (): Promise<void> => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Failed to fetch points settings");
+        const data = await response.json();
+        const matchedExpiration: ExpirationOption =
+          EXPIRATION_OPTIONS.find((opt) => opt.id === data.expirationId) ||
+          EXPIRATION_OPTIONS[2];
+
+        const fetchedState: PointsFormState = {
+          defaultPoints: data.defaultPoints,
+          maxPoints: data.maxPoints,
+          expiration: matchedExpiration,
+          earlySelection: data.earlySelection,
+          bookDaysOff: data.bookDaysOff,
+          reserveAdvance: data.reserveAdvance,
+        };
+
+        setFormData(fetchedState);
+        setServerState(fetchedState);
+      } catch (error) {
+        console.error("Error reading points config from DB:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   const updateField = <K extends keyof PointsFormState>(
     key: K,
@@ -77,44 +92,44 @@ const PointsRulesTemplate = () => {
   const handleConfirmSave = async (): Promise<void> => {
     setIsSaving(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const pointsConfig = {
-      defaultMonthlyPoints: Number(formData.defaultPoints),
-      maximumPointsPerEmployee: Number(formData.maxPoints),
-      pointsExpiration: formData.expiration.id,
-      allowedUses: {
-        earlyShiftSelection: formData.earlySelection,
+    try {
+      const payload = {
+        defaultPoints: formData.defaultPoints,
+        maxPoints: formData.maxPoints,
+        expirationId: formData.expiration.id,
+        earlySelection: formData.earlySelection,
         bookDaysOff: formData.bookDaysOff,
-        reserveShiftsInAdvance: formData.reserveAdvance,
-      },
-    };
+        reserveAdvance: formData.reserveAdvance,
+      };
 
-    console.log(
-      "Successfully saved points configuration to server:",
-      pointsConfig,
-    );
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    localStorage.setItem(SERVER_KEY, JSON.stringify(formData));
+      if (!response.ok) throw new Error("Failed to save changes to DB");
 
-    setIsSaving(false);
-    setIsModalOpen(false);
+      setServerState(formData);
+      console.log("Successfully saved points configuration to DB");
+    } catch (error) {
+      console.error("Error during saving points config:", error);
+    } finally {
+      setIsSaving(false);
+      setIsModalOpen(false);
+    }
   };
 
   const handleCancel = (): void => {
-    try {
-      const serverState = localStorage.getItem(SERVER_KEY);
-      const rollbackState = serverState
-        ? JSON.parse(serverState)
-        : DEFAULT_STATE;
-
-      setFormData(rollbackState);
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(rollbackState));
-    } catch (error) {
-      console.error("Error during points rollback:", error);
-    }
+    setFormData(serverState);
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return <div className={styles.wrapper}>Loading configuration...</div>;
+  }
 
   return (
     <>

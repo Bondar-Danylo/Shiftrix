@@ -31,8 +31,7 @@ const EARLY_ACCESS_OPTIONS: SelectionOption[] = [
   { id: "3_months", label: "3 months ahead" },
 ];
 
-const DRAFT_KEY = "scheduling_rules_form_state";
-const SERVER_KEY = "scheduling_rules_server_state";
+const API_URL = `${import.meta.env.VITE_API_URL}/scheduling_rules.php`;
 
 const DEFAULT_STATE: SchedulingFormState = {
   advancePeriod: ADVANCE_OPTIONS[0],
@@ -43,29 +42,48 @@ const DEFAULT_STATE: SchedulingFormState = {
   autoBalance: true,
 };
 
-const getInitialState = (): SchedulingFormState => {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const draft = localStorage.getItem(DRAFT_KEY);
-    if (draft) return JSON.parse(draft);
-
-    const server = localStorage.getItem(SERVER_KEY);
-    return server ? JSON.parse(server) : DEFAULT_STATE;
-  } catch (error) {
-    console.error("Error reading initial scheduling state:", error);
-    return DEFAULT_STATE;
-  }
-};
-
 const SchedulingRulesTemplate = () => {
-  const [formData, setFormData] =
-    useState<SchedulingFormState>(getInitialState);
+  const [formData, setFormData] = useState<SchedulingFormState>(DEFAULT_STATE);
+  const [serverState, setServerState] =
+    useState<SchedulingFormState>(DEFAULT_STATE);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect((): void => {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
-  }, [formData]);
+    const fetchSettings = async (): Promise<void> => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok)
+          throw new Error("Failed to fetch scheduling settings");
+        const data = await response.json();
+
+        const matchedAdvance: SelectionOption =
+          ADVANCE_OPTIONS.find((opt) => opt.id === data.advancePeriodId) ||
+          ADVANCE_OPTIONS[0];
+
+        const matchedEarly =
+          EARLY_ACCESS_OPTIONS.find((opt) => opt.id === data.earlyAccessId) ||
+          EARLY_ACCESS_OPTIONS[1];
+
+        const fetchedState: SchedulingFormState = {
+          advancePeriod: matchedAdvance,
+          earlyAccess: matchedEarly,
+          maxShifts: data.maxShifts,
+          minHours: data.minHours,
+          allowOvertime: data.allowOvertime,
+          autoBalance: data.autoBalance,
+        };
+        setFormData(fetchedState);
+        setServerState(fetchedState);
+      } catch (error) {
+        console.error("Error reading scheduling config from DB:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const updateField = <K extends keyof SchedulingFormState>(
     key: K,
@@ -82,46 +100,44 @@ const SchedulingRulesTemplate = () => {
   const handleConfirmSave = async (): Promise<void> => {
     setIsSaving(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const schedulingConfig = {
-      advanceSelectionPeriod: formData.advancePeriod.id,
-      pointsEarlyAccess: formData.earlyAccess.id,
-      limits: {
-        maximumShiftsPerWeek: Number(formData.maxShifts),
-        minimumHoursBetweenShifts: Number(formData.minHours),
-      },
-      automation: {
+    try {
+      const payload = {
+        advancePeriodId: formData.advancePeriod.id,
+        earlyAccessId: formData.earlyAccess.id,
+        maxShifts: formData.maxShifts,
+        minHours: formData.minHours,
         allowOvertime: formData.allowOvertime,
-        autoBalanceHours: formData.autoBalance,
-      },
-    };
+        autoBalance: formData.autoBalance,
+      };
 
-    console.log(
-      "Successfully saved scheduling configuration to server:",
-      schedulingConfig,
-    );
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    localStorage.setItem(SERVER_KEY, JSON.stringify(formData));
+      if (!response.ok) throw new Error("Failed to save scheduling changes");
 
-    setIsSaving(false);
-    setIsModalOpen(false);
+      setServerState(formData);
+      console.log("Successfully saved scheduling configuration to DB");
+    } catch (error) {
+      console.error("Error during saving scheduling config:", error);
+    } finally {
+      setIsSaving(false);
+      setIsModalOpen(false);
+    }
   };
 
   const handleCancel = (): void => {
-    try {
-      const serverState = localStorage.getItem(SERVER_KEY);
-      const rollbackState = serverState
-        ? JSON.parse(serverState)
-        : DEFAULT_STATE;
-
-      setFormData(rollbackState);
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(rollbackState));
-    } catch (error) {
-      console.error("Error during scheduling rollback:", error);
-    }
+    setFormData(serverState);
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return <div className={styles.wrapper}>Loading configuration...</div>;
+  }
 
   return (
     <>

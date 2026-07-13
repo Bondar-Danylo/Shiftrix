@@ -9,7 +9,9 @@ export interface ShiftTemplate {
   minEmployees: number;
   maxEmployees: number;
   points: number;
-  days: string;
+  days: string | string[];
   description: string;
+  instructions?: string;
   isHighPriority?: boolean;
+  isRecurring?: boolean;
 }

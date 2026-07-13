@@ -19,6 +19,7 @@ const TemplateCard = ({
   onDuplicateClick,
   onDeleteClick,
 }: TemplateCardProps) => {
+  const days: any = template.days;
   return (
     <div className={styles.card}>
       <div className={styles.card__header}>
@@ -90,7 +91,15 @@ const TemplateCard = ({
         </div>
         <div className={styles.metrics__item}>
           <CalendarIcon />
-          <span>{template.days}</span>
+          {days.map((day: string, index: number) => {
+            const isLast: boolean = index === days.length - 1;
+            return (
+              <span key={index}>
+                {day}
+                {isLast ? "" : ", "}
+              </span>
+            );
+          })}
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import styles from "./CreateTemplateModal.module.scss";
 
 // Components
 import Button from "@/components/Common/Button/Button";
+import Dropdown from "@/components/Common/Dropdown/Dropdown";
 
 // Icons
 import CloseIcon from "@/assets/icons/reject_icon.svg?react";
@@ -13,7 +14,12 @@ import CloseIcon from "@/assets/icons/reject_icon.svg?react";
 // Types
 import type { CreateTemplateModalProps } from "./CreateTemplateModal.types";
 
+// Extras
 const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+interface RoleOption {
+  id: string | number;
+  name: string;
+}
 
 const CreateTemplateModal = ({
   isOpen,
@@ -24,8 +30,8 @@ const CreateTemplateModal = ({
   const isEditMode = !!initialData;
 
   const [title, setTitle] = useState("");
-  const [role, setRole] = useState("");
   const [description, setDescription] = useState("");
+  const [instructions, setInstructions] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -35,6 +41,53 @@ const CreateTemplateModal = ({
   const [maximum, setMaximum] = useState(4);
   const [enablePoints, setEnablePoints] = useState(false);
   const [isHighPriority, setIsHighPriority] = useState(false);
+  const [roles, setRoles] = useState<RoleOption[]>([]);
+  const [selectedRole, setSelectedRole] = useState<RoleOption | null>(null);
+  const [isRolesLoading, setIsRolesLoading] = useState(false);
+
+  useEffect((): void => {
+    const fetchRoles = async (): Promise<void> => {
+      try {
+        setIsRolesLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/get_options.php`,
+        );
+        if (!response.ok) throw new Error("Failed to load professions");
+
+        const data = await response.json();
+
+        const positionsArray =
+          data && Array.isArray(data.positions) ? data.positions : [];
+
+        const formattedRoles = positionsArray.map((item: any) => ({
+          id: item.id,
+          name:
+            item.name ||
+            item.title ||
+            item.position_name ||
+            item.profession_name,
+        }));
+
+        setRoles(formattedRoles);
+
+        if (initialData) {
+          const currentRole = formattedRoles.find(
+            (r: RoleOption) =>
+              r.name.toLowerCase() === initialData.role.toLowerCase(),
+          );
+          if (currentRole) setSelectedRole(currentRole);
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      } finally {
+        setIsRolesLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchRoles();
+    }
+  }, [isOpen, initialData]);
 
   useEffect(() => {
     if (isOpen) {
@@ -42,8 +95,8 @@ const CreateTemplateModal = ({
 
       if (initialData) {
         setTitle(initialData.title);
-        setRole(initialData.role);
         setDescription(initialData.description || "");
+        setInstructions(initialData.instructions || "");
         setStartTime(initialData.startTime);
         setEndTime(initialData.endTime);
         setRequired(initialData.requiredEmployees);
@@ -51,25 +104,15 @@ const CreateTemplateModal = ({
         setMaximum(initialData.maxEmployees);
         setEnablePoints(initialData.points > 0);
         setIsHighPriority(!!initialData.isHighPriority);
-
-        if (initialData.days === "Everyday") {
-          setSelectedDays(DAYS_OF_WEEK);
-        } else if (initialData.days.includes("–")) {
-          const [start, end] = initialData.days.split("–");
-          const startIndex = DAYS_OF_WEEK.indexOf(start);
-          const endIndex = DAYS_OF_WEEK.indexOf(end);
-          setSelectedDays(DAYS_OF_WEEK.slice(startIndex, endIndex + 1));
-        } else {
-          setSelectedDays(
-            initialData.days
-              .split(", ")
-              .filter((day) => DAYS_OF_WEEK.includes(day)),
-          );
-        }
+        setIsRecurring(!!initialData.isRecurring);
+        setSelectedDays(
+          Array.isArray(initialData.days) ? initialData.days : [],
+        );
       } else {
         setTitle("");
-        setRole("");
+        setSelectedRole(null);
         setDescription("");
+        setInstructions("");
         setStartTime("");
         setEndTime("");
         setSelectedDays([]);
@@ -90,40 +133,26 @@ const CreateTemplateModal = ({
 
   if (!isOpen) return null;
 
-  const handleDayToggle = (day: string) => {
+  const handleDayToggle = (day: string): void => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
-  const formatDaysString = (days: string[]): string => {
-    if (days.length === 0) return "Not specified";
-    if (days.length === 7) return "Everyday";
-    const indexes = days
-      .map((d) => DAYS_OF_WEEK.indexOf(d))
-      .sort((a, b) => a - b);
-    const isSequential = indexes.every(
-      (val, i) => i === 0 || val === indexes[i - 1] + 1,
-    );
-
-    if (isSequential && days.length > 2) {
-      const sortedDays = [...days].sort(
-        (a, b) => DAYS_OF_WEEK.indexOf(a) - DAYS_OF_WEEK.indexOf(b),
-      );
-      return `${sortedDays[0]}–${sortedDays[sortedDays.length - 1]}`;
-    }
-    return days.join(", ");
-  };
-
-  const executeSubmit = () => {
-    if (!title || !role || !startTime || !endTime) {
+  const executeSubmit = (): void => {
+    if (!title || !selectedRole || !startTime || !endTime) {
       alert("Please fill in all required fields (*)");
+      return;
+    }
+
+    if (selectedDays.length === 0) {
+      alert("Please select at least one day for the shift");
       return;
     }
 
     onSave({
       title,
-      role,
+      role: selectedRole.name,
       location: initialData?.location || "Downtown",
       startTime,
       endTime,
@@ -131,9 +160,11 @@ const CreateTemplateModal = ({
       minEmployees: Number(minimum),
       maxEmployees: Number(maximum),
       points: enablePoints ? initialData?.points || 15 : 0,
-      days: formatDaysString(selectedDays),
+      days: selectedDays,
       description,
+      instructions,
       isHighPriority,
+      isRecurring,
     });
 
     onClose();
@@ -169,23 +200,29 @@ const CreateTemplateModal = ({
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
+
               <div className={styles.field}>
                 <label className={styles.label}>Role *</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="e.g. Server"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
+                <Dropdown<RoleOption>
+                  options={roles}
+                  value={selectedRole}
+                  onSelect={(option) => setSelectedRole(option)}
+                  getOptionLabel={(option) => option.name}
+                  renderOption={(option) => <span>{option.name}</span>}
+                  placeholder={
+                    isRolesLoading ? "Loading roles..." : "Select role..."
+                  }
+                  className={styles.dropdownWidth}
                 />
               </div>
             </div>
+
             <div className={styles.field}>
-              <label className={styles.label}>Description (Optional)</label>
+              <label className={styles.label}>Description (For Managers)</label>
               <input
                 type="text"
                 className={styles.input}
-                placeholder="e.g. Busy evening service"
+                placeholder="Internal notes or shift description..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -299,13 +336,16 @@ const CreateTemplateModal = ({
               <span>High priority shift (must be filled)</span>
             </label>
           </div>
+
           <div className={styles.section}>
-            <h3 className={styles.section__title}>Instructions</h3>
+            <h3 className={styles.section__title}>
+              Instructions (For Employees)
+            </h3>
             <textarea
               className={styles.textarea}
-              placeholder="Special instructions or notes for employees..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Special instructions or notes that employees will see..."
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
             />
           </div>
         </div>

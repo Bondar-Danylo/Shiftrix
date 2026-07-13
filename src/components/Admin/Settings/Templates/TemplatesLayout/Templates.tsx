@@ -1,5 +1,5 @@
 // Imports
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Styles
 import styles from "./Templates.module.scss";
@@ -15,42 +15,11 @@ import CreateTemplateModal from "../CreateTemplateModal/CreateTemplateModal";
 import type { ShiftTemplate } from "./Templates.types";
 type ModalMode = "delete" | "duplicate";
 
-const INITIAL_MOCK_TEMPLATES: ShiftTemplate[] = [
-  {
-    id: "1",
-    title: "Morning Shift",
-    role: "Server",
-    location: "Downtown",
-    startTime: "09:00",
-    endTime: "17:00",
-    requiredEmployees: 3,
-    minEmployees: 2,
-    maxEmployees: 4,
-    points: 10,
-    days: "Mon–Fri",
-    description: "Standard morning service",
-  },
-  {
-    id: "2",
-    title: "Evening Shift",
-    role: "Server",
-    location: "Downtown",
-    startTime: "17:00",
-    endTime: "23:00",
-    requiredEmployees: 4,
-    minEmployees: 3,
-    maxEmployees: 5,
-    points: 15,
-    days: "Fri, Sat",
-    description: "Busy evening service, high energy required",
-    isHighPriority: true,
-  },
-];
+const API_URL: string = `${import.meta.env.VITE_API_URL}/shift_templates.php`;
 
 const Templates = () => {
-  const [templates, setTemplates] = useState<ShiftTemplate[]>(
-    INITIAL_MOCK_TEMPLATES,
-  );
+  const [templates, setTemplates] = useState<ShiftTemplate[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [templateToEdit, setTemplateToEdit] = useState<ShiftTemplate | null>(
@@ -62,7 +31,26 @@ const Templates = () => {
   const [modalMode, setModalMode] = useState<ModalMode | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const filteredTemplates = templates.filter(
+  const fetchTemplates = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("Failed to fetch templates");
+      const data = await response.json();
+      setTemplates(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error loading templates:", error);
+      alert("Could not load templates from server.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect((): void => {
+    fetchTemplates();
+  }, [fetchTemplates]);
+
+  const filteredTemplates: ShiftTemplate[] = templates.filter(
     (template) =>
       template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.role.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -78,26 +66,33 @@ const Templates = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleSaveTemplate = (
+  const handleSaveTemplate = async (
     templateData: Omit<ShiftTemplate, "id">,
-  ): void => {
-    if (templateToEdit) {
-      setTemplates((prev) =>
-        prev.map((t) =>
-          t.id === templateToEdit.id
-            ? { ...templateData, id: templateToEdit.id }
-            : t,
-        ),
-      );
-    } else {
-      const freshTemplate: ShiftTemplate = {
-        ...templateData,
-        id: crypto.randomUUID(),
-      };
-      setTemplates((prev) => [freshTemplate, ...prev]);
+  ): Promise<void> => {
+    try {
+      const payload = templateToEdit
+        ? { id: templateToEdit.id, ...templateData }
+        : { ...templateData };
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        await fetchTemplates();
+        setIsFormModalOpen(false);
+        setTemplateToEdit(null);
+      } else {
+        alert("Server error: " + (result.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error saving template:", error);
+      alert("Failed to connect to the server.");
     }
-    setIsFormModalOpen(false);
-    setTemplateToEdit(null);
   };
 
   const handleDeleteClick = (template: ShiftTemplate): void => {
@@ -119,25 +114,54 @@ const Templates = () => {
     if (!activeTemplate || !modalMode) return;
     setIsProcessing(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
       if (modalMode === "delete") {
-        setTemplates((prev) => prev.filter((t) => t.id !== activeTemplate.id));
-      } else if (modalMode === "duplicate") {
-        const newTemplate: ShiftTemplate = {
-          ...activeTemplate,
-          id: crypto.randomUUID(),
-          title: `${activeTemplate.title} (Copy)`,
-        };
-        setTemplates((prev) => {
-          const index = prev.findIndex((t) => t.id === activeTemplate.id);
-          const updated = [...prev];
-          updated.splice(index + 1, 0, newTemplate);
-          return updated;
+        const response = await fetch(`${API_URL}?id=${activeTemplate.id}`, {
+          method: "DELETE",
         });
+        const result = await response.json();
+
+        if (result.success) {
+          setTemplates((prev) =>
+            prev.filter((t) => t.id !== activeTemplate.id),
+          );
+        } else {
+          alert("Delete error: " + result.error);
+        }
+      } else if (modalMode === "duplicate") {
+        const duplicateData: Omit<ShiftTemplate, "id"> = {
+          title: `${activeTemplate.title} (Copy)`,
+          role: activeTemplate.role,
+          location: activeTemplate.location,
+          startTime: activeTemplate.startTime,
+          endTime: activeTemplate.endTime,
+          requiredEmployees: activeTemplate.requiredEmployees,
+          minEmployees: activeTemplate.minEmployees,
+          maxEmployees: activeTemplate.maxEmployees,
+          points: activeTemplate.points,
+          days: activeTemplate.days,
+          description: activeTemplate.description,
+          instructions: activeTemplate.instructions,
+          isHighPriority: activeTemplate.isHighPriority,
+          isRecurring: activeTemplate.isRecurring,
+        };
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(duplicateData),
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          await fetchTemplates();
+        } else {
+          alert("Duplicate error: " + result.error);
+        }
       }
       handleCloseModal();
     } catch (error) {
-      console.error(error);
+      console.error(`Error processing ${modalMode}:`, error);
+      alert("Connection to server failed.");
     } finally {
       setIsProcessing(false);
     }
@@ -169,13 +193,17 @@ const Templates = () => {
         className={styles.search}
       />
 
-      <TemplatesList
-        templates={filteredTemplates}
-        searchQuery={searchQuery}
-        onEditClick={handleEditClick}
-        onDeleteClick={handleDeleteClick}
-        onDuplicateClick={handleDuplicateClick}
-      />
+      {isLoading ? (
+        <div className={styles.loading}>Loading templates...</div>
+      ) : (
+        <TemplatesList
+          templates={filteredTemplates}
+          searchQuery={searchQuery}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+          onDuplicateClick={handleDuplicateClick}
+        />
+      )}
 
       <CreateTemplateModal
         isOpen={isFormModalOpen}
@@ -192,7 +220,7 @@ const Templates = () => {
         title={
           modalMode === "delete" ? "Delete Template" : "Duplicate Template"
         }
-        description={`Are you sure action for "${activeTemplate?.title}"?`}
+        description={`Are you sure you want to ${modalMode === "delete" ? "delete" : "duplicate"} "${activeTemplate?.title}"?`}
         confirmText={modalMode === "delete" ? "Delete" : "Duplicate"}
         cancelText="Cancel"
         variant={modalMode === "delete" ? "danger" : "primary"}

@@ -22,6 +22,7 @@ const EmployeeModal = ({
   onClose,
   onEdit,
   pointsHistory = [],
+  weeklyHours,
 }: ExtendedEmployeeModalProps) => {
   useEffect(() => {
     if (isOpen) {
@@ -36,11 +37,11 @@ const EmployeeModal = ({
 
   if (!isOpen || !employee) return null;
 
-  const progressWidth = Math.min(
-    (employee.currentHours / employee.max_hours) * 100,
-    100,
-  );
-
+  const bookedHours: number = weeklyHours?.booked_hours ?? 0;
+  const totalHours: number = weeklyHours?.total_hours ?? 0;
+  const maxHours: number = weeklyHours?.max_hours ?? employee.max_hours ?? 0;
+  const progressWidth: number =
+    maxHours > 0 ? Math.min((totalHours / maxHours) * 100, 100) : 0;
   const avatarCheck: string | undefined =
     `${import.meta.env.VITE_API_MAIN}/${employee.photo_url}`.split("/").at(-1);
 
@@ -116,51 +117,67 @@ const EmployeeModal = ({
 
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Work Statistics</h3>
+
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
-                <span className={styles.cardLabel}>Weekly Hours</span>
+                <span className={styles.cardLabel}>Booked Hours</span>
+
                 <div className={styles.cardValueContainer}>
-                  <span className={styles.cardValue}>
-                    {employee.currentHours}h
-                  </span>
+                  <span className={styles.cardValue}>{bookedHours}h</span>
                 </div>
-                <span className={styles.cardSubtext}>
-                  of {employee.max_hours}h contract
+
+                <span className={styles.cardSubtext}>Scheduled this week</span>
+              </div>
+
+              <div className={styles.statCard}>
+                <span className={styles.cardLabel}>Remaining Hours</span>
+
+                <span className={styles.cardValue}>
+                  {weeklyHours?.remaining_hours ?? maxHours}h
                 </span>
+
+                <span className={styles.cardSubtext}>Available this week</span>
+              </div>
+
+              <div className={styles.statCard}>
+                <span className={styles.cardLabel}>Weekly Hours</span>
+
+                <div className={styles.cardValueContainer}>
+                  <span className={styles.cardValue}>{totalHours}h</span>
+                </div>
+
+                <span className={styles.cardSubtext}>
+                  of {maxHours}h contract
+                </span>
+
                 <div className={styles.progressBg}>
                   <div
                     className={styles.progressFill}
-                    style={{ width: `${progressWidth}%` }}
+                    style={{
+                      width: `${progressWidth}%`,
+                    }}
                   />
                 </div>
               </div>
 
-              <div className={styles.statCard}>
-                <span className={styles.cardLabel}>Reliability</span>
-                <span className={styles.cardValue}>89%</span>
-                <span
-                  className={`${styles.tag} ${employee.reliabilityRate >= 95 ? styles.excellent : styles.good}`}
-                >
-                  {employee.reliabilityRate >= 95 ? "Excellent" : "Good"}
-                </span>
-              </div>
-
               <div className={`${styles.statCard} ${styles.blueCard}`}>
                 <span className={styles.cardLabelBlue}>Current Points</span>
+
                 <span className={styles.cardValueBlue}>
                   {employee.points_balance}
                 </span>
+
                 <span className={styles.cardSubtextBlue}>
                   Available balance
                 </span>
               </div>
-
-              <div className={styles.statCard}>
-                <span className={styles.cardLabel}>Scheduled Hours</span>
-                <span className={styles.cardValue}>{employee.max_hours}h</span>
-                <span className={styles.cardSubtext}>This period</span>
-              </div>
             </div>
+
+            {weeklyHours && weeklyHours.overtime_hours > 0 && (
+              <div className={styles.overtimeWarning}>
+                Overtime: {weeklyHours.overtime_hours}h
+              </div>
+            )}
           </div>
 
           <div className={styles.section}>

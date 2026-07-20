@@ -9,7 +9,7 @@ export interface ShiftDetails {
   id: string;
   timeWindow: string;
   points?: number;
-  dateStr: string;
+  dateStr: string;  
   profession: string;
 }
 
@@ -20,4 +20,6 @@ export interface ManageShiftModalProps {
   assignedEmployees: ShiftEmployee[]; 
   onRemoveEmployee: (id: string) => void;
   onAddEmployee: (emp: ShiftEmployee) => void;
+  isReadOnly?: boolean;
+  allEmployees?: ShiftEmployee[];
 }

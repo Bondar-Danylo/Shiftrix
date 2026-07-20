@@ -23,6 +23,7 @@ const EmployeesTable = ({
   pointsHistory = {},
   onEdit,
   onDelete,
+  weeklyHours,
 }: EmployeesTableProps) => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
@@ -36,18 +37,18 @@ const EmployeesTable = ({
     null,
   );
 
-  const handleRowClick = (emp: Employee) => {
+  const handleRowClick = (emp: Employee): void => {
     setSelectedEmployee(emp);
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, emp: Employee) => {
+  const handleDeleteClick = (e: React.MouseEvent, emp: Employee): void => {
     e.stopPropagation();
     setEmployeeToDelete(emp);
     setIsDeleteConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = (): void => {
     if (employeeToDelete) {
       onDelete(employeeToDelete.id);
       setIsDeleteConfirmOpen(false);
@@ -55,7 +56,7 @@ const EmployeesTable = ({
     }
   };
 
-  const getStatusClass = (status: string) => {
+  const getStatusClass = (status: string): string => {
     const normalizedStatus = status.toLowerCase().replace(" ", "_");
 
     const statusMap: Record<string, string> = {
@@ -102,6 +103,7 @@ const EmployeesTable = ({
             </tr>
           ) : (
             employees.map((emp) => {
+              const employeeHours = weeklyHours[emp.id];
               const isOverworked = emp.currentHours > emp.max_hours;
               const progressWidth = Math.min(
                 (emp.currentHours / emp.max_hours) * 100,
@@ -181,11 +183,11 @@ const EmployeesTable = ({
                               : styles.normalHoursText
                           }
                         >
-                          {emp.currentHours}h
+                          {employeeHours?.worked_hours ?? 0}h
                         </span>
                         <span className={styles.maxHoursText}>
                           {" "}
-                          / {emp.max_hours}h
+                          / {employeeHours?.total_hours ?? 0}h
                         </span>
                       </div>
                       <div className={styles.progressBarBg}>
@@ -246,6 +248,9 @@ const EmployeesTable = ({
         }}
         pointsHistory={
           selectedEmployee ? pointsHistory[selectedEmployee.id] || [] : []
+        }
+        weeklyHours={
+          selectedEmployee ? weeklyHours[selectedEmployee.id] || null : null
         }
       />
 

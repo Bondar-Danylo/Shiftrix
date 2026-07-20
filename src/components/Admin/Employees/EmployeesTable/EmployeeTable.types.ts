@@ -1,4 +1,6 @@
-import type { PointsTransaction } from "../EmployeeModal/EmployeeModal.types";
+import type {
+  EmployeeWeeklyHours,
+} from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
 
 export interface Employee {
   id: string | number;
@@ -20,8 +22,10 @@ export interface Employee {
 
 export interface EmployeesTableProps {
   employees: Employee[];
-  isLoading?: boolean;
-  pointsHistory?: Record<string | number, PointsTransaction[]>;
-  onEdit: (emp: Employee) => void;
+  isLoading: boolean;
+  pointsHistory: Record<string | number, any[]>;
+  weeklyHours: Record<string | number,EmployeeWeeklyHours>;
+
+  onEdit: (employee: Employee) => void;
   onDelete: (id: string | number) => void;
 }

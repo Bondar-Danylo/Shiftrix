@@ -29,11 +29,14 @@ const DayShiftsModal: React.FC<DayShiftsModalProps> = ({
   onAddShift,
   onEditShift,
   onSelectShift,
+  isReadOnly = false,
 }) => {
   const [selectedFilterId, setSelectedFilterId] = useState<string>("all");
   const [prevDateStr, setPrevDateStr] = useState<string>(dateStr);
 
-  const filterOptions = useMemo<ProfessionFilterOption[]>(() => {
+  const filterOptions = useMemo<
+    ProfessionFilterOption[]
+  >((): ProfessionFilterOption[] => {
     return [{ id: "all", label: "All" }, ...professions];
   }, [professions]);
 
@@ -42,14 +45,14 @@ const DayShiftsModal: React.FC<DayShiftsModalProps> = ({
     setSelectedFilterId("all");
   }
 
-  const currentSelectedOption = useMemo(() => {
+  const currentSelectedOption = useMemo((): ProfessionFilterOption => {
     return (
       filterOptions.find((opt) => opt.id === selectedFilterId) ||
       filterOptions[0]
     );
   }, [filterOptions, selectedFilterId]);
 
-  const groupedShifts = useMemo(() => {
+  const groupedShifts = useMemo((): Record<string, ModalShiftItem[]> => {
     return shifts.reduce<Record<string, ModalShiftItem[]>>((acc, shift) => {
       const shiftProf = shift.profession.toLowerCase();
       const currentFilter = selectedFilterId.toLowerCase();
@@ -136,15 +139,18 @@ const DayShiftsModal: React.FC<DayShiftsModalProps> = ({
                             {shift.points} pts
                           </span>
                         )}
-                        <button
-                          className={styles.editBtn}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEditShift(shift.id);
-                          }}
-                        >
-                          Edit
-                        </button>
+
+                        {!isReadOnly && (
+                          <button
+                            className={styles.editBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditShift(shift.id);
+                            }}
+                          >
+                            Edit
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -153,17 +159,20 @@ const DayShiftsModal: React.FC<DayShiftsModalProps> = ({
             ))
           )}
         </div>
-        <div className={styles.modalFooter}>
-          <Button
-            className={styles.addShiftModalBtn}
-            type="button"
-            isLink={false}
-            size="normal"
-            onClick={onAddShift}
-          >
-            + Add Shift
-          </Button>
-        </div>
+
+        {!isReadOnly && (
+          <div className={styles.modalFooter}>
+            <Button
+              className={styles.addShiftModalBtn}
+              type="button"
+              isLink={false}
+              size="normal"
+              onClick={onAddShift}
+            >
+              + Add Shift
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

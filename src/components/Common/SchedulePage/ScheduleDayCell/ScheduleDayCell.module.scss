@@ -17,8 +17,7 @@
     background-color: var(--grey_color) !important;
     color: var(--dark-grey_color) !important;
     opacity: 0.65 !important;
-    pointer-events:none;
-    cursor: not-allowed !important;
+    cursor: pointer !important;
 
     button, .scheduleDay__addShiftBtn { 
       pointer-events: none !important; 
@@ -36,12 +35,39 @@
   }
 
   &_futureLocked {
-    background-color: rgba(54, 65, 83, 0.03);
-    color: var(--dark-grey_color);
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'%3E%3C/path%3E%3C/svg%3E") 8 8, not-allowed;
+    background-color: rgba(245, 158, 11, 0.03); 
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    color: var(--graphite_color);
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(245, 158, 11, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.3);
+    }
 
     .scheduleDay__number { 
-      opacity: 0.7; 
+      font-weight: var(--weight-semibold);
+      color: #b45309; 
+    }
+  }
+
+  &_hardLocked {
+    background-color: rgba(54, 65, 83, 0.05) !important;
+    color: var(--dark-grey_color) !important;
+    cursor: not-allowed !important;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+
+    .scheduleDay__number {
+      opacity: 0.5;
+      font-weight: var(--weight-light);
+    }
+
+    .scheduleDay__footer {
+      opacity: 0.3;
+    }
+
+    button, .scheduleDay__addShiftBtn {
+      display: none !important; 
     }
   }
 
@@ -86,16 +112,45 @@
     font-size: var(--size-md); 
   }
 
-  &__lockIcon {
-    color: var(--dark-grey_color); 
-    width: 16px; 
-    height: 16px; 
-    transition: transform 0.2s ease;
+  &__badgeWrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    padding: 2px 6px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+  }
 
-    &:hover {
-      transform: scale(1.15); 
-      color: var(--graphite_color);
-    }
+  &__pointsBadge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #b45309;
+    letter-spacing: 0.5px;
+  }
+
+  &__lockIcon {
+    color: #d97706; 
+    width: 11px; 
+    height: 11px; 
+  }
+
+  &__hardLockWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+  }
+
+  &__hardLockIcon {
+    color: var(--dark-grey_color);
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
   }
 
   &__content {
@@ -149,6 +204,24 @@
       width: 14px; 
       height: 14px; 
     }
+
+    &_gold {
+      border-color: #f59e0b;
+      background-color: rgba(254, 243, 199, 0.4);
+      color: #d97706;
+
+      &:hover {
+        background-color: #fef3c7;
+        border-color: #d97706;
+        color: #b45309;
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+      }
+    }
+  }
+
+  &__goldPlus {
+    font-size: 14px;
+    font-weight: bold;
   }
 
   &__footer {

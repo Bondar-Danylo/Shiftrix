@@ -19,4 +19,5 @@ export interface DayShiftsModalProps {
   onAddShift: () => void;
   onEditShift: (shiftId: string) => void;   
   onSelectShift: (shiftId: string) => void;
+  isReadOnly?: boolean
 }

@@ -6,7 +6,6 @@ import styles from "./ScheduleHeader.module.scss";
 
 // Components
 import Button from "@/components/Common/Button/Button";
-import Dropdown from "@/components/Common/Dropdown/Dropdown";
 import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal";
 
 // Icons
@@ -15,15 +14,11 @@ import ChevronRightIcon from "@/assets/icons/chevron-right_icon.svg?react";
 
 // Types
 import type { ScheduleHeaderProps } from "./ScheduleHeader.types";
-import type { ProfessionOption } from "@/pages/Common/SchedulePage/SchedulePage.types";
 
 const ScheduleHeader = ({
   monthTitle,
   viewMode,
   setViewMode,
-  currentProfession,
-  professionOptions,
-  onProfessionSelect,
   onPrevMonth,
   onNextMonth,
 }: ScheduleHeaderProps) => {
@@ -51,16 +46,6 @@ const ScheduleHeader = ({
       setIsPublishing(false);
     }
   }, []);
-
-  const getDropdownLabel = useCallback(
-    (option: ProfessionOption) => option.label,
-    [],
-  );
-
-  const renderDropdownOption = useCallback(
-    (option: ProfessionOption) => <span>{option.label}</span>,
-    [],
-  );
 
   return (
     <header className={styles.scheduleHeader}>
@@ -102,14 +87,6 @@ const ScheduleHeader = ({
       </div>
 
       <div className={styles.scheduleHeader__right}>
-        <Dropdown<ProfessionOption>
-          options={professionOptions}
-          value={currentProfession}
-          onSelect={onProfessionSelect}
-          getOptionLabel={getDropdownLabel}
-          renderOption={renderDropdownOption}
-          className={styles.scheduleHeader__dropdown}
-        />
         <Button
           type="button"
           size="normal"
@@ -117,7 +94,7 @@ const ScheduleHeader = ({
           className={`${styles.scheduleHeader__btn} ${styles.scheduleHeader__btn_publish}`}
           onClick={handleOpenModal}
         >
-          <span>Publish Schedule</span>
+          <span>Send Schedule</span>
         </Button>
       </div>
 

@@ -19,37 +19,15 @@ import type {
   ShiftEmployee,
 } from "./ManageShiftModal.types";
 
-const MOCK_COMPANY_EMPLOYEES: ShiftEmployee[] = [
-  {
-    id: "sarah",
-    name: "Sarah Johnson",
-    role: "Senior Server",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
-  },
-  {
-    id: "mike",
-    name: "Mike Chen",
-    role: "Head Chef",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-  },
-  {
-    id: "james",
-    name: "James Wilson",
-    role: "Kitchen Assistant",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
-  },
-];
-
 const ManageShiftModal: React.FC<ManageShiftModalProps> = ({
   isOpen,
   onClose,
   shiftDetails,
   assignedEmployees,
+  allEmployees,
   onRemoveEmployee,
   onAddEmployee,
+  isReadOnly = false,
 }) => {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -59,12 +37,30 @@ const ManageShiftModal: React.FC<ManageShiftModalProps> = ({
   }, []);
 
   const availableToSearch = useMemo((): ShiftEmployee[] => {
-    return MOCK_COMPANY_EMPLOYEES.filter(
-      (emp) =>
-        !assignedEmployees.some((assigned) => assigned.id === emp.id) &&
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [assignedEmployees, searchQuery]);
+    if (!shiftDetails) return [];
+
+    const employeesList = allEmployees || [];
+
+    return employeesList.filter((emp) => {
+      const isAlreadyAssigned: boolean = assignedEmployees.some(
+        (assigned) => String(assigned.id) === String(emp.id),
+      );
+      const employeeRole: string = String(emp.role || "")
+        .trim()
+        .toLowerCase();
+      const shiftProfession: string = String(shiftDetails.profession || "")
+        .trim()
+        .toLowerCase();
+
+      const isRoleMatch: boolean = employeeRole === shiftProfession;
+
+      const isNameMatch: boolean = (emp.name || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      return !isAlreadyAssigned && isRoleMatch && isNameMatch;
+    });
+  }, [allEmployees, assignedEmployees, shiftDetails, searchQuery]);
 
   if (!isOpen || !shiftDetails) return null;
 
@@ -92,7 +88,9 @@ const ManageShiftModal: React.FC<ManageShiftModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>Manage Shift</h3>
+          <h3 className={styles.modalTitle}>
+            {isReadOnly ? "View Shift Details" : "Manage Shift"}
+          </h3>
           <button
             className={styles.closeBtn}
             onClick={onClose}
@@ -128,7 +126,10 @@ const ManageShiftModal: React.FC<ManageShiftModalProps> = ({
               <div key={emp.id} className={styles.employeeCard}>
                 <div className={styles.empInfo}>
                   <img
-                    src={emp.avatarUrl || "https://via.placeholder.com/40"}
+                    src={
+                      emp.avatarUrl ||
+                      `https://api.dicebear.com/10.x/avataaars/png?seed=${emp.id}`
+                    }
                     alt={emp.name}
                     className={styles.avatar}
                   />
@@ -137,69 +138,81 @@ const ManageShiftModal: React.FC<ManageShiftModalProps> = ({
                     <p className={styles.empRole}>{emp.role}</p>
                   </div>
                 </div>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => onRemoveEmployee(emp.id)}
-                  aria-label="Remove employee"
-                >
-                  <TrashIcon />
-                </button>
+                {!isReadOnly && (
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => onRemoveEmployee(emp.id)}
+                    aria-label="Remove employee"
+                  >
+                    <TrashIcon />
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          {!isSearching ? (
-            <button
-              className={styles.addEmployeeTrigger}
-              onClick={() => setIsSearching(true)}
-            >
-              + Add Employee
-            </button>
-          ) : (
-            <div className={styles.searchContainer}>
-              <p className={styles.searchLabel}>Search employees</p>
 
-              <Search
-                onChangeDebounced={handleSearchDebounced}
-                placeholder="Type a name..."
-                value={searchQuery}
-                debounceDelay={250}
-              />
+          {!isReadOnly && (
+            <>
+              {!isSearching ? (
+                <button
+                  className={styles.addEmployeeTrigger}
+                  onClick={() => setIsSearching(true)}
+                >
+                  + Add Employee
+                </button>
+              ) : (
+                <div className={styles.searchContainer}>
+                  <p className={styles.searchLabel}>Search employees</p>
 
-              <div className={styles.searchResults}>
-                {availableToSearch.length === 0 ? (
-                  <p className={styles.noResults}>No employees found</p>
-                ) : (
-                  availableToSearch.map((emp) => (
-                    <div key={emp.id} className={styles.searchResultRow}>
-                      <div className={styles.empInfo}>
-                        <img
-                          src={emp.avatarUrl}
-                          alt={emp.name}
-                          className={styles.avatar}
-                        />
-                        <div>
-                          <p className={styles.empName}>{emp.name}</p>
-                          <p className={styles.empRole}>{emp.role}</p>
+                  <Search
+                    onChangeDebounced={handleSearchDebounced}
+                    placeholder="Type a name..."
+                    value={searchQuery}
+                    debounceDelay={250}
+                  />
+
+                  <div className={styles.searchResults}>
+                    {availableToSearch.length === 0 ? (
+                      <p className={styles.noResults}>
+                        No eligible employees found
+                      </p>
+                    ) : (
+                      availableToSearch.map((emp) => (
+                        <div key={emp.id} className={styles.searchResultRow}>
+                          <div className={styles.empInfo}>
+                            <img
+                              src={
+                                emp.avatarUrl ||
+                                `https://api.dicebear.com/10.x/avataaars/png?seed=${emp.id}`
+                              }
+                              alt={emp.name}
+                              className={styles.avatar}
+                            />
+                            <div>
+                              <p className={styles.empName}>{emp.name}</p>
+                              <p className={styles.empRole}>{emp.role}</p>
+                            </div>
+                          </div>
+                          <button
+                            className={styles.addButton}
+                            onClick={() => handleSelectEmployee(emp)}
+                          >
+                            +
+                          </button>
                         </div>
-                      </div>
-                      <button
-                        className={styles.addButton}
-                        onClick={() => handleSelectEmployee(emp)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
+                      ))
+                    )}
+                  </div>
 
-              <button
-                className={styles.cancelSearchBtn}
-                onClick={handleCancelSearch}
-              >
-                Cancel
-              </button>
-            </div>
+                  <button
+                    className={styles.cancelSearchBtn}
+                    onClick={handleCancelSearch}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

@@ -11,7 +11,7 @@ import LockIcon from "@/assets/icons/padlock_icon.svg?react";
 // Types
 import type { ScheduleDayCellProps } from "./ScheduleDayCell.types";
 
-const MAX_VISIBLE_AVATARS = 2;
+const MAX_VISIBLE_AVATARS: number = 2;
 
 const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
   const [hoveredEmployee, setHoveredEmployee] = useState<number | null>(null);
@@ -19,9 +19,11 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
     id: string;
     text: string;
   } | null>(null);
-
-  const dayNumber = day.date.getDate();
-  const assignedCount = day.employees.length;
+  const dayNumber: number = day.date.getDate();
+  const assignedCount: number = day.employees.length;
+  const currentPointsCost: number = day.points_cost ?? 30 + assignedCount * 5;
+  const isHardLocked: boolean =
+    !day.isAccessible && !day.isFutureLocked && !day.isPast;
 
   const getStatusColor = (
     assigned: number,
@@ -40,10 +42,11 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
     styles.scheduleDay,
     day.isPast ? styles.scheduleDay_past : "",
     day.isFutureLocked ? styles.scheduleDay_futureLocked : "",
+    isHardLocked ? styles.scheduleDay_hardLocked : "",
     day.isAccessible ? styles.scheduleDay_accessible : "",
     day.isToday ? styles.scheduleDay_today : "",
     day.isSelected ? styles.scheduleDay_selected : "",
-    !day.isCurrentMonth && day.isFutureLocked
+    !day.isCurrentMonth && (day.isFutureLocked || isHardLocked)
       ? styles.scheduleDay_inactiveFuture
       : "",
   ]
@@ -51,12 +54,21 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
     .join(" ");
 
   const visibleEmployees = day.employees.slice(0, MAX_VISIBLE_AVATARS);
-  const remainingCount = assignedCount - MAX_VISIBLE_AVATARS;
+  const remainingCount: number = assignedCount - MAX_VISIBLE_AVATARS;
+
+  const handleCellClick = (): void => {
+    if (
+      !isHardLocked &&
+      (day.isAccessible || day.isFutureLocked || day.isPast)
+    ) {
+      onDayClick(day.dateStr);
+    }
+  };
 
   return (
     <div
       className={cellClass}
-      onClick={() => day.isAccessible && onDayClick(day.dateStr)}
+      onClick={handleCellClick}
       onMouseEnter={() => {
         if (day.isPast) {
           setHoveredHint({
@@ -66,7 +78,12 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
         } else if (day.isFutureLocked) {
           setHoveredHint({
             id: `cell-${index}`,
-            text: "Available for selection with points",
+            text: `Unlock early booking for ${currentPointsCost} pts`,
+          });
+        } else if (isHardLocked) {
+          setHoveredHint({
+            id: `cell-${index}`,
+            text: "This period is not available for booking yet",
           });
         }
       }}
@@ -80,8 +97,20 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
 
       <div className={styles.scheduleDay__header}>
         <span className={styles.scheduleDay__number}>{dayNumber}</span>
+
         {day.isFutureLocked && (
-          <LockIcon className={styles.scheduleDay__lockIcon} />
+          <div className={styles.scheduleDay__badgeWrapper}>
+            <span className={styles.scheduleDay__pointsBadge}>
+              {currentPointsCost} PTS
+            </span>
+            <LockIcon className={styles.scheduleDay__lockIcon} />
+          </div>
+        )}
+
+        {isHardLocked && (
+          <div className={styles.scheduleDay__hardLockWrapper}>
+            <LockIcon className={styles.scheduleDay__hardLockIcon} />
+          </div>
         )}
       </div>
 
@@ -98,7 +127,10 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
               onMouseLeave={() => setHoveredEmployee(null)}
             >
               <img
-                src={emp.avatarUrl || "https://i.pravatar.cc/50"}
+                src={
+                  emp.avatarUrl ||
+                  `https://api.dicebear.com/10.x/avataaars/png?seed=${emp.id}`
+                }
                 alt={emp.name}
                 className={styles.scheduleDay__avatar}
               />
@@ -125,15 +157,26 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
             </div>
           )}
 
-          {day.isAccessible && assignedCount < day.maxCount && (
-            <button
-              type="button"
-              className={styles.scheduleDay__addShiftBtn}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <PlusIcon />
-            </button>
-          )}
+          {(day.isAccessible || day.isFutureLocked) &&
+            !isHardLocked &&
+            assignedCount < day.maxCount && (
+              <button
+                type="button"
+                className={`${styles.scheduleDay__addShiftBtn} ${
+                  day.isFutureLocked ? styles.scheduleDay__addShiftBtn_gold : ""
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCellClick();
+                }}
+              >
+                {day.isFutureLocked ? (
+                  <span className={styles.scheduleDay__goldPlus}>★</span>
+                ) : (
+                  <PlusIcon />
+                )}
+              </button>
+            )}
         </div>
       </div>
 
@@ -157,7 +200,9 @@ const ScheduleDayCell = ({ day, index, onDayClick }: ScheduleDayCellProps) => {
 
           <div className={styles.scheduleDay__progressTrack}>
             <div
-              className={`${styles.scheduleDay__progressBar} ${styles[`scheduleDay__progressBar_${statusColor}`]}`}
+              className={`${styles.scheduleDay__progressBar} ${
+                styles[`scheduleDay__progressBar_${statusColor}`]
+              }`}
               style={{
                 width: `${Math.min((assignedCount / day.maxCount) * 100, 100)}%`,
               }}

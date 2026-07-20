@@ -1,3 +1,4 @@
+import type { EmployeeWeeklyHours } from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
 import type { Employee } from "../EmployeesTable/EmployeeTable.types";
 
 export interface EmployeeModalProps {
@@ -5,6 +6,7 @@ export interface EmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit?: (id?: string | number) => void;
+  weeklyHours: EmployeeWeeklyHours | null;
 }
 
 export interface PointsTransaction {

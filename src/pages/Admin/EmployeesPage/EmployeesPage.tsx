@@ -14,6 +14,8 @@ import type { NewEmployeeData } from "@/components/Admin/Employees/AddEmployeeMo
 import type {
   DictionaryItem,
   PointTransaction,
+  EmployeeWeeklyHours,
+  WeeklyHoursResponse,
 } from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
 
 // Imports
@@ -43,6 +45,9 @@ const EmployeesPage = () => {
   const [pointsHistory, setPointsHistory] = useState<
     Record<string | number, any[]>
   >({});
+  const [weeklyHours, setWeeklyHours] = useState<
+    Record<string | number, EmployeeWeeklyHours>
+  >({});
 
   useEffect((): void => {
     const loadFiltersData = async (): Promise<void> => {
@@ -62,19 +67,28 @@ const EmployeesPage = () => {
 
   const fetchEmployees = async (): Promise<void> => {
     setIsLoading(true);
+
     try {
-      const [empResponse, pointsResponse] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL}/get_employees.php`),
-        fetch(`${import.meta.env.VITE_API_URL}/get_points_history.php`),
-      ]);
+      const [empResponse, pointsResponse, weeklyHoursResponse] =
+        await Promise.all([
+          fetch(`${import.meta.env.VITE_API_URL}/get_employees.php`),
+
+          fetch(`${import.meta.env.VITE_API_URL}/get_points_history.php`),
+
+          fetch(`${import.meta.env.VITE_API_URL}/get_weekly_hours.php`),
+        ]);
 
       const empData = await empResponse.json();
       const pointsData = await pointsResponse.json();
+
+      const weeklyHoursData: WeeklyHoursResponse =
+        await weeklyHoursResponse.json();
 
       if (empData && Array.isArray(empData.employees)) {
         setRawEmployees(empData.employees);
       } else {
         console.error("Employees not found:", empData);
+
         setRawEmployees([]);
       }
 
@@ -82,9 +96,11 @@ const EmployeesPage = () => {
         const grouped = pointsData.history.reduce(
           (
             acc: Record<string | number, any[]>,
+
             transaction: PointTransaction,
           ) => {
             const userId = transaction.user_id;
+
             if (!acc[userId]) {
               acc[userId] = [];
             }
@@ -102,14 +118,36 @@ const EmployeesPage = () => {
           },
           {},
         );
+
         setPointsHistory(grouped);
       } else {
         setPointsHistory({});
       }
-    } catch (err) {
-      console.error("Error loading employees or points history", err);
+
+      if (weeklyHoursData.success && Array.isArray(weeklyHoursData.hours)) {
+        const groupedHours = weeklyHoursData.hours.reduce(
+          (
+            acc: Record<string | number, EmployeeWeeklyHours>,
+
+            employeeHours: EmployeeWeeklyHours,
+          ) => {
+            acc[employeeHours.user_id] = employeeHours;
+
+            return acc;
+          },
+          {},
+        );
+
+        setWeeklyHours(groupedHours);
+      } else {
+        setWeeklyHours({});
+      }
+    } catch (error: unknown) {
+      console.error("Error loading employees data", error);
+
       setRawEmployees([]);
       setPointsHistory({});
+      setWeeklyHours({});
     } finally {
       setIsLoading(false);
     }
@@ -237,6 +275,7 @@ const EmployeesPage = () => {
         employees={filteredEmployees}
         isLoading={isLoading}
         pointsHistory={pointsHistory}
+        weeklyHours={weeklyHours}
         onEdit={handleOpenEditModal}
         onDelete={handleDeleteEmployee}
       />

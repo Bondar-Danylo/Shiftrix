@@ -5,31 +5,88 @@ import styles from "./CoverageCard.module.scss";
 import CardLayout from "../CardLayout/CardLayout";
 import DonutChart from "@/components/Common/DonutChart/DonutChart";
 import Button from "@/components/Common/Button/Button";
+import CardLoader from "@/components/Common/Loader/Loader";
 
 // Imports
-import React from "react";
-import type { CoverageItem } from "./CoverageCard.types";
+import { useEffect, useState } from "react";
+import { useNavigate, type NavigateFunction } from "react-router-dom";
 
-interface CoverageCardProps {
-  // На будущее: когда подключишь бэк, просто закомментируй дефолтный массив ниже
-  // и принимай данные сверху: data: CoverageItem[]
-}
+// Types
+import type { CoverageItem, TodayCoverageResponse } from "./CoverageCard.types";
 
-const CoverageCard: React.FC<CoverageCardProps> = () => {
-  const coverage: CoverageItem[] = [
-    { value: 4, color: "#00C950", label: "Confirmed" },
-    { value: 1, color: "#FB2C36", label: "Not confirmed" },
-  ];
+const CoverageCard = () => {
+  const navigate: NavigateFunction = useNavigate();
+  const [coverage, setCoverage] = useState<CoverageItem[]>([
+    {
+      value: 0,
+      color: "#00C950",
+      label: "Assigned",
+    },
+    {
+      value: 0,
+      color: "#FB2C36",
+      label: "Open slots",
+    },
+  ]);
+  const [percent, setPercent] = useState<number>(0);
+  const [date, setDate] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const totalShifts: number = coverage.reduce(
-    (sum, item) => sum + item.value,
-    0,
-  );
-  const confirmedValue: number =
-    coverage.find((item) => item.label === "Confirmed")?.value || 0;
+  useEffect((): void => {
+    const loadCoverage = async (): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
 
-  const percent: number =
-    totalShifts > 0 ? Math.round((confirmedValue / totalShifts) * 100) : 0;
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/get_today_coverage.php`,
+        );
+
+        const data: TodayCoverageResponse = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to load coverage");
+        }
+
+        setCoverage([
+          {
+            value: data.confirmed,
+            color: "#00C950",
+            label: "Assigned",
+          },
+          {
+            value: data.not_confirmed,
+            color: "#FB2C36",
+            label: "Open slots",
+          },
+        ]);
+
+        setPercent(data.percent);
+        setDate(data.date);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadCoverage();
+  }, []);
+
+  const handleViewUnconfirmed = (): void => {
+    navigate("/schedule", {
+      state: {
+        date,
+      },
+    });
+  };
+
+  if (isLoading) {
+    return <CardLoader text="Loading coverage..." />;
+  }
 
   return (
     <CardLayout
@@ -37,50 +94,60 @@ const CoverageCard: React.FC<CoverageCardProps> = () => {
       subtitle="Current shift coverage"
       className={styles.coverage}
     >
-      <div className={styles.chart}>
-        <DonutChart
-          className={styles.donut}
-          data={coverage}
-          size={100}
-          strokeWidth={10}
-        />
+      {error ? (
+        <p className={styles.error}>{error}</p>
+      ) : (
+        <>
+          <div className={styles.chart}>
+            <DonutChart
+              className={styles.donut}
+              data={coverage}
+              size={100}
+              strokeWidth={10}
+            />
 
-        <div className={styles.legend}>
-          {coverage.map((item, index) => (
-            <div key={index} className={styles.legend__item}>
-              <span
-                className={styles.legend__color}
-                style={{ backgroundColor: item.color }}
-              ></span>
-              <p className={styles.legend__text}>{item.label}</p>
-              <span className={styles.legend__number}>{item.value}</span>
+            <div className={styles.legend}>
+              {coverage.map((item) => (
+                <div key={item.label} className={styles.legend__item}>
+                  <span
+                    className={styles.legend__color}
+                    style={{ backgroundColor: item.color }}
+                  />
+
+                  <p className={styles.legend__text}>{item.label}</p>
+
+                  <span className={styles.legend__number}>{item.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className={styles.percentage}>
-        <div className={styles.line}>
-          <span
-            className={styles.line__percent}
-            style={{ width: `${percent}%` }}
-          ></span>
-        </div>
+          <div className={styles.percentage}>
+            <div className={styles.line}>
+              <span
+                className={styles.line__percent}
+                style={{ width: `${percent}%` }}
+              />
+            </div>
 
-        <div className={styles.percentage__text}>
-          <p className={styles.percentage__title}>Coverage</p>
-          <span className={styles.percentage__number}>{percent}%</span>
-        </div>
-      </div>
+            <div className={styles.percentage__text}>
+              <p className={styles.percentage__title}>Coverage</p>
 
-      <Button
-        type="button"
-        isLink={false}
-        size="large"
-        className={styles.button}
-      >
-        View Unconfirmed
-      </Button>
+              <span className={styles.percentage__number}>{percent}%</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            isLink={false}
+            size="large"
+            className={styles.button}
+            onClick={handleViewUnconfirmed}
+          >
+            View Schedule
+          </Button>
+        </>
+      )}
     </CardLayout>
   );
 };

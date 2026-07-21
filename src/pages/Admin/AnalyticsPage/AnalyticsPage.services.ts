@@ -25,7 +25,7 @@ const MOCK_DATABASE: Record<string, AnalyticsSummary> = {
       { points: 30, hours: 0.4 },
     ],
     topPerformers: FULL_TOP_PERFORMERS,
-    teamOverview: { totalEmployees: 6, avgShiftFill: 92, shiftSwaps: 24, autoFilled: 18, sickLeaves: 3, totalHours: 195, overtimeHours: 2.0 },
+    teamOverview: { totalEmployees: 12, avgShiftFill: 92, shiftSwaps: 6, autoFilled: 18, sickLeaves: 3, totalHours: 195, overtimeHours: 2.0 },
     shiftPopularity: {
       chartData: [{ name: "Morning", value: 45, color: "#ffb703" }, { name: "Afternoon", value: 35, color: "#3b82f6" }, { name: "Evening", value: 20, color: "#8b5cf6" }],
       mostPopularDay: "Friday", avgFillRate: 94

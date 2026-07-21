@@ -5,11 +5,7 @@ import { useState, useEffect } from "react";
 import styles from "./AnalyticsPage.module.scss";
 
 // Components
-import Button from "@/components/Common/Button/Button";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
-
-// Icons
-import DownloadIcon from "@/assets/icons/download_icon.svg?react";
 
 // Constants & Services
 import { FILTER_OPTIONS } from "./AnalyticsPage.constants";
@@ -26,10 +22,10 @@ const AnalyticsPage = () => {
   const [summaryData, setSummaryData] = useState<AnalyticsSummary | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    let isMounted = true;
+  useEffect((): (() => void) => {
+    let isMounted: boolean = true;
 
-    const loadAnalyticsData = async () => {
+    const loadAnalyticsData = async (): Promise<void> => {
       setIsLoading(true);
       try {
         const response = await fetchAnalyticsSummary(selectedFilter.value);
@@ -47,7 +43,7 @@ const AnalyticsPage = () => {
 
     loadAnalyticsData();
 
-    return () => {
+    return (): void => {
       isMounted = false;
     };
   }, [selectedFilter.value]);
@@ -71,15 +67,6 @@ const AnalyticsPage = () => {
             placeholder="Select timeframe ..."
             className={styles.dropdown}
           />
-          <Button
-            isLink={false}
-            size="normal"
-            type="button"
-            className={styles.button}
-            disabled={isLoading}
-          >
-            <DownloadIcon /> Export
-          </Button>
         </div>
       </div>
 

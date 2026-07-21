@@ -18,10 +18,10 @@ const PointsHistoryCard = ({ history }: PointsHistoryCardProps) => {
             <div className={styles.info}>
               <div
                 className={`${styles.icon} ${
-                  tx.type === "earned" ? styles.earned : styles.spent
+                  tx.type === "added" ? styles.earned : styles.spent
                 }`}
               >
-                {tx.type === "earned" ? <ArrowUp /> : <ArrowDown />}
+                {tx.type === "added" ? <ArrowUp /> : <ArrowDown />}
               </div>
               <div className={styles.text}>
                 <h4 className={styles.item__title}>{tx.title}</h4>
@@ -30,10 +30,10 @@ const PointsHistoryCard = ({ history }: PointsHistoryCardProps) => {
             </div>
             <span
               className={`${styles.amount} ${
-                tx.type === "earned" ? styles.plus : styles.minus
+                tx.type === "added" ? styles.plus : styles.minus
               }`}
             >
-              {tx.type === "earned" ? `+${tx.amount}` : `-${tx.amount}`} pts
+              {tx.type === "added" ? `+${tx.amount}` : `-${tx.amount}`} pts
             </span>
           </li>
         ))}

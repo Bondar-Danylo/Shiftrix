@@ -5,7 +5,7 @@
     grid-template-areas:
         "alerts alerts alerts alerts alerts alerts"
         "status status status marketplace marketplace marketplace"
-        "shifts shifts shifts shifts actions actions"
+        "shifts shifts shifts shifts shifts shifts"
         "stats stats whatsapp whatsapp health health";
 }
 .title {
@@ -27,7 +27,7 @@
       "alerts alerts"          
       "status marketplace"    
       "shifts shifts"          
-      "actions health"       
+      "health health"       
       "stats whatsapp";       
   }
 }

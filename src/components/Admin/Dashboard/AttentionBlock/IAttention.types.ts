@@ -1,10 +1,24 @@
-export type AlertSeverity = 'critical' | 'warning' | 'info';
+export type AlertSeverity = "critical" | "warning" | "info";
+
+export type AlertType = "uncovered" | "understaffed" | "cancellation";
 
 export interface ShiftAlert {
-  id: string | number;
+  id: string;
+  shift_id?: number;
+  employee_id?: number;
   title: string;
-  when: string,
-  type: 'uncovered' | 'understaffed' | 'cancellation';
+  date: string;
+  start_time: string;
+  end_time: string;
+  type: AlertType;
   severity: AlertSeverity;
-  createdAt: string;   
+  assigned_count?: number;
+  max_employees?: number;
+  created_at: string;
+}
+
+export interface AttentionResponse {
+  success: boolean;
+  alerts: ShiftAlert[];
+  error?: string;
 }

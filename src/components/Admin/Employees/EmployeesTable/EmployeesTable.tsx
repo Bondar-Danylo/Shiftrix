@@ -37,6 +37,13 @@ const EmployeesTable = ({
     null,
   );
 
+  const [isInviteConfirmOpen, setIsInviteConfirmOpen] =
+    useState<boolean>(false);
+
+  const [employeeToInvite, setEmployeeToInvite] = useState<Employee | null>(
+    null,
+  );
+
   const handleRowClick = (emp: Employee): void => {
     setSelectedEmployee(emp);
     setIsModalOpen(true);
@@ -68,6 +75,17 @@ const EmployeesTable = ({
     };
 
     return statusMap[normalizedStatus] || "";
+  };
+
+  const handleInviteClick = (e: React.MouseEvent, employee: Employee): void => {
+    e.stopPropagation();
+    setEmployeeToInvite(employee);
+    setIsInviteConfirmOpen(true);
+  };
+
+  const handleConfirmInvite = (): void => {
+    setIsInviteConfirmOpen(false);
+    setEmployeeToInvite(null);
   };
 
   if (isLoading) {
@@ -159,7 +177,7 @@ const EmployeesTable = ({
                       <button
                         type="button"
                         className={styles.inviteBtn}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => handleInviteClick(e, emp)}
                       >
                         <WhatsappIcon />
                         <span>Send Invite</span>
@@ -266,6 +284,20 @@ const EmployeesTable = ({
           setEmployeeToDelete(null);
         }}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmationModal
+        isOpen={isInviteConfirmOpen}
+        title={`Send WhatsApp invite to ${employeeToInvite?.name}?`}
+        description="Are you sure you want to send this employee a WhatsApp invitation?"
+        confirmText="Send Invite"
+        cancelText="Cancel"
+        variant="primary"
+        onClose={() => {
+          setIsInviteConfirmOpen(false);
+          setEmployeeToInvite(null);
+        }}
+        onConfirm={handleConfirmInvite}
       />
     </div>
   );

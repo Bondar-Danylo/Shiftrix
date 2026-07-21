@@ -5,76 +5,84 @@ import styles from "./UpcomingShiftCard.module.scss";
 import CardLayout from "../CardLayout/CardLayout";
 import Dropdown from "@/components/Common/Dropdown/Dropdown";
 
+// Types
+import type {
+  UpcomingShift,
+  UpcomingShiftsResponse,
+} from "./UpcomingShiftCard.types";
+
 // Imports
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const UpcomingShiftCard = () => {
-  const fakeData = [
-    {
-      shiftStart: "08:00",
-      shiftEnd: "16:00",
-      position: "Barista",
-      status: "covered",
-      name: "Sarah Johnson",
-    },
-    {
-      shiftStart: "09:00",
-      shiftEnd: "17:00",
-      position: "Waiter",
-      status: "covered",
-      name: "Mike Chen",
-    },
-    {
-      shiftStart: "17:00",
-      shiftEnd: "23:00",
-      position: "Chef",
-      status: "uncovered",
-      name: "",
-    },
-    {
-      shiftStart: "17:00",
-      shiftEnd: "01:00",
-      position: "Bartender",
-      status: "covered",
-      name: "Emma Rodriguez",
-    },
-  ];
-
+  const [shifts, setShifts] = useState<UpcomingShift[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const positionOptions = useMemo(() => {
+  useEffect((): void => {
+    const loadUpcomingShifts = async (): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/get_upcoming_shifts.php`,
+        );
+
+        const data: UpcomingShiftsResponse = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to load upcoming shifts");
+        }
+
+        setShifts(Array.isArray(data.shifts) ? data.shifts : []);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        setError(message);
+        setShifts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadUpcomingShifts();
+  }, []);
+
+  const positionOptions = useMemo((): string[] => {
     const uniquePositions = Array.from(
-      new Set(fakeData.map((shift) => shift.position)),
+      new Set(shifts.map((shift) => shift.position)),
     );
+
     return ["All positions", ...uniquePositions];
-  }, [fakeData]);
+  }, [shifts]);
 
-  const filteredShifts = useMemo(() => {
+  const filteredShifts = useMemo((): UpcomingShift[] => {
     if (!selectedPosition || selectedPosition === "All positions") {
-      return fakeData;
+      return shifts;
     }
-    return fakeData.filter((shift) => shift.position === selectedPosition);
-  }, [selectedPosition, fakeData]);
 
-  const handleSelectPosition = (position: string) => {
+    return shifts.filter((shift) => shift.position === selectedPosition);
+  }, [selectedPosition, shifts]);
+
+  const handleSelectPosition = (position: string): void => {
     setSelectedPosition(position === "All positions" ? null : position);
   };
 
-  const getTimeUntilShift = (shiftStartStr: string): string => {
-    const now: Date = new Date();
-    const [hours, minutes]: number[] = shiftStartStr.split(":").map(Number);
-
-    const shiftDate: Date = new Date();
-    shiftDate.setHours(hours, minutes, 0, 0);
-
-    if (shiftDate < now) {
-      shiftDate.setDate(shiftDate.getDate() + 1);
+  const formatTimeUntilShift = (minutes: number): string => {
+    if (minutes < 60) {
+      return `${minutes}m`;
     }
 
-    const diffMs: number = shiftDate.getTime() - now.getTime();
-    const diffHours: number = Math.round(diffMs / (1000 * 60 * 60));
+    const hours: number = Math.floor(minutes / 60);
+    const remainingMinutes: number = minutes % 60;
 
-    return `${diffHours}h`;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+
+    return `${hours}h ${remainingMinutes}m`;
   };
 
   return (
@@ -87,39 +95,52 @@ const UpcomingShiftCard = () => {
         options={positionOptions}
         value={selectedPosition || "All positions"}
         onSelect={handleSelectPosition}
-        getOptionLabel={(pos) => pos}
-        renderOption={(pos) => <span>{pos}</span>}
+        getOptionLabel={(position) => position}
+        renderOption={(position) => <span>{position}</span>}
         placeholder="Select a position"
         className={styles.dropdown}
       />
 
-      {filteredShifts.length === 0 ? (
+      {isLoading ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>Loading shifts...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>{error}</p>
+        </div>
+      ) : filteredShifts.length === 0 ? (
         <div className={styles.emptyState}>
           <p className={styles.emptyText}>No upcoming shifts</p>
         </div>
       ) : (
         <ul className={styles.shiftsList}>
-          {filteredShifts.map((shift, index) => (
+          {filteredShifts.map((shift) => (
             <li
-              key={index}
-              className={`${styles.shiftCard} ${shift.status === "uncovered" ? styles.uncovered : styles.covered}`}
+              key={shift.id}
+              className={`${styles.shiftCard} ${
+                shift.status === "uncovered" ? styles.uncovered : styles.covered
+              }`}
             >
               <div className={styles.shiftLeft}>
                 <div className={styles.shiftTime}>
-                  {shift.shiftStart} - {shift.shiftEnd}
+                  {shift.shift_start} - {shift.shift_end}
                 </div>
+
                 <span className={styles.position}>{shift.position}</span>
               </div>
+
               <div className={styles.shiftInfo}>
                 <span
                   className={`${styles.workerName} ${
                     shift.status === "covered" ? "" : styles.notAssigned
                   }`}
                 >
-                  {shift.status === "covered" ? shift.name : "Not assigned"}
+                  {shift.employee_names ? shift.employee_names : "Not assigned"}
                 </span>
+
                 <span className={styles.timeUntil}>
-                  in {getTimeUntilShift(shift.shiftStart)}
+                  in {formatTimeUntilShift(shift.minutes_until)}
                 </span>
               </div>
             </li>

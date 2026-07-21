@@ -4,13 +4,14 @@ import styles from "./StatsCard.module.scss";
 // Components
 import CardLayout from "../CardLayout/CardLayout";
 
+// Interfaces
 interface StatsCardData {
   title: string;
   data: string | number;
 }
 
 const StatsCard = () => {
-  const fakeData: StatsCardData[] = [
+  const data: StatsCardData[] = [
     {
       title: "Time saved",
       data: 6,
@@ -25,7 +26,7 @@ const StatsCard = () => {
   return (
     <CardLayout title="This Month" subtitle="" className={styles.wrapper}>
       <ul className={styles.list}>
-        {fakeData.map((item) => (
+        {data.map((item) => (
           <li key={item.title} className={styles.item}>
             <p className={styles.title}>{item.title}</p>
             <span className={styles.data}>{item.data}</span>

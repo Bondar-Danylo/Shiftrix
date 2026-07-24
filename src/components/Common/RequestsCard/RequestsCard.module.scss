@@ -164,6 +164,26 @@
   }
 }
 
+.btnCancel {
+  width: 100%;
+  color: var(--graphite_color);
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+
+  transition: all ease 0.3s;
+
+  &:hover {
+    color: var(--dark-red_color);
+    background: var(--light-red_color);
+    border-color: var(--red_color);
+  }
+
+  svg {
+    stroke: currentColor;
+  }
+}
+
 // Responsive 
 @media (max-width: 500px) {
   .cardTop {

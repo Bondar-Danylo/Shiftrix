@@ -8,7 +8,6 @@ import EmployeesIcon from "@/assets/icons/employees_icon.svg?react";
 import RequestIcon from "@/assets/icons/request_icon.svg?react";
 import AnalyticsIcon from "@/assets/icons/analytic_icon.svg?react";
 import SettingsIcon from "@/assets/icons/settings_icon.svg?react";
-import StarIcon from "@/assets/icons/star_icon.svg?react";
 
 // Types
 import type { MenuItem, MenuProps } from "./Menu.types";
@@ -22,19 +21,25 @@ const menuConfig: MenuItem[] = [
     to: "/dashboard",
     label: "Dashboard",
     Icon: DashboardIcon,
-    roles: ["admin", "user"],
+    roles: ["admin", "employee"],
   },
   {
     to: "/schedule",
     label: "Schedule",
     Icon: ScheduleIcon,
-    roles: ["admin", "user"],
+    roles: ["admin", "employee"],
   },
   {
     to: "/settings",
     label: "Settings",
     Icon: SettingsIcon,
-    roles: ["admin", "user"],
+    roles: ["admin", "employee"],
+  },
+  {
+    to: "/requests",
+    label: "Requests",
+    Icon: RequestIcon,
+    roles: ["admin", "employee"],
   },
 
   // Admin Pages
@@ -44,16 +49,12 @@ const menuConfig: MenuItem[] = [
     Icon: EmployeesIcon,
     roles: ["admin"],
   },
-  { to: "/requests", label: "Requests", Icon: RequestIcon, roles: ["admin"] },
   {
     to: "/analytics",
     label: "Analytics",
     Icon: AnalyticsIcon,
     roles: ["admin"],
   },
-
-  // User Pages
-  { to: "/Points", label: "My Points", Icon: StarIcon, roles: ["user"] },
 ];
 
 const Menu = ({ role, status, onClickEvent }: MenuProps) => {

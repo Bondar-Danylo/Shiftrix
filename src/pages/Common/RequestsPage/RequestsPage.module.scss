@@ -62,7 +62,17 @@
 
 @media screen and (max-width: 475px) {
   .aprove {
-    margin-left: 10px;
-    width: 120px;
+    margin-left: 0;
+    width: 100%;
+  }
+  .top  {
+    gap: 10px;
+    justify-content: center;
+  }
+  .filter {
+    width: 100%;
+    & > div {
+      max-width: unset;
+    }
   }
 }

@@ -1,12 +1,28 @@
+export type RequestStatus = "pending" | "approved" | "rejected" | "cancelled";
+
 export interface RequestItem {
-  from: RequestUser;
+  id: number;
+  type: string;
   date: string;
   reason: string;
-  with?: RequestUser;
-  type: "swap" | "dayoff" | "holiday";
+  status: RequestStatus;
   createdAt: Date;
-  id?: number,
+
+  from: {
+    id: number;
+    name: string;
+    position: string | number;
+    img: string;
+  };
+
+  with: {
+    id: number;
+    name: string;
+    position: string | number;
+    img: string;
+  } | null;
 }
+
 export interface RequestUser {
   name: string;
   position: string;

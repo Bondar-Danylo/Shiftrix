@@ -12,10 +12,19 @@ import ConfirmationModal from "@/components/Common/ConfirmationModal/Confirmatio
 import FilterIcon from "@/assets/icons/filter_icon.svg?react";
 
 // Imports
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 
 // Types
 import type { FilterOption, RequestItem } from "./RequestsPage.types";
+import CreateRequestModal from "@/components/Common/CreateRequestModal/CreateRequestModal";
+import type { CreateRequestData } from "@/components/Common/CreateRequestModal/CreateRequestModal.types";
+
+// Interfaces
+interface StoredUser {
+  id: number;
+  name: string;
+  role: string;
+}
 
 const filterOptions: FilterOption[] = [
   { value: "all", label: "All Requests" },
@@ -34,40 +43,67 @@ const RequestsPage = () => {
     filterOptions[0],
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
-  const fetchRequests = async (): Promise<void> => {
+  const currentUser = useMemo<StoredUser | null>(() => {
+    const storedUser: string | null = localStorage.getItem("user");
+
+    if (!storedUser) return null;
+
+    try {
+      return JSON.parse(storedUser) as StoredUser;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const userId: number = Number(
+    currentUser?.id || localStorage.getItem("user_id"),
+  );
+
+  const userRole: string =
+    currentUser?.role || localStorage.getItem("userRole") || "employee";
+
+  const isAdmin: boolean = userRole === "admin" || userRole === "manager";
+
+  const fetchRequests = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/get_requests.php`,
-      );
+      setError(null);
 
-      if (!response.ok) {
-        throw new Error(`Server Error: ${response.status}`);
-      }
+      const query: string = isAdmin ? "" : `?user_id=${userId}`;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/get_requests.php${query}`,
+      );
 
       const data = await response.json();
 
-      const formattedData = data.map((item: any) => ({
+      if (!response.ok) {
+        throw new Error(data.error || `Server Error: ${response.status}`);
+      }
+
+      const sourceData = Array.isArray(data) ? data : data.requests || [];
+
+      const formattedData = sourceData.map((item: any) => ({
         ...item,
         createdAt: item.createdAt ? new Date(item.createdAt) : undefined,
       }));
 
       setRequests(formattedData);
-    } catch (err: any) {
-      setError(err.message || "Loading Request Error");
+    } catch (error: unknown) {
+      const message: string =
+        error instanceof Error ? error.message : "Loading Request Error";
+
+      setError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAdmin, userId]);
 
   useEffect((): void => {
     fetchRequests();
-  }, []);
-
-  const handleSearch = useCallback((value: string): void => {
-    setSearchQuery(value);
-  }, []);
+  }, [fetchRequests]);
 
   const filteredData: RequestItem[] = requests.filter((item) => {
     const matchesType =
@@ -87,6 +123,7 @@ const RequestsPage = () => {
     setIsModalOpen(false);
   };
 
+  // Handlers
   const handleConfirmApproveAll = async (): Promise<void> => {
     const idsToApprove = filteredData.map((item) => item.id);
 
@@ -117,6 +154,40 @@ const RequestsPage = () => {
     }
   };
 
+  const handleCreateRequest = async (
+    requestData: CreateRequestData,
+  ): Promise<void> => {
+    if (!userId || isAdmin) return;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/create_request.php`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...requestData,
+          user_id: userId,
+        }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to create request");
+    }
+
+    setIsCreateModalOpen(false);
+
+    await fetchRequests();
+  };
+
+  const handleSearch = useCallback((value: string): void => {
+    setSearchQuery(value);
+  }, []);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
@@ -141,16 +212,28 @@ const RequestsPage = () => {
           placeholder="Type name..."
           className={styles.search}
         />
-        <Button
-          type="button"
-          isLink={false}
-          size="normal"
-          className={styles.aprove}
-          onClick={openApproveAllModal}
-          disabled={filteredData.length === 0 || isLoading}
-        >
-          Approve All
-        </Button>
+        {isAdmin ? (
+          <Button
+            type="button"
+            isLink={false}
+            size="normal"
+            className={styles.aprove}
+            onClick={openApproveAllModal}
+            disabled={filteredData.length === 0 || isLoading}
+          >
+            Approve All
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            isLink={false}
+            size="normal"
+            className={styles.aprove}
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            Create Request
+          </Button>
+        )}
       </div>
 
       {isLoading && <div className={styles.loading}>Loading ...</div>}
@@ -160,20 +243,34 @@ const RequestsPage = () => {
         <RequestsList
           totalCount={filteredData.length}
           filteredRequests={filteredData}
+          currentUserId={userId}
+          isAdmin={isAdmin}
+          onRequestUpdated={fetchRequests}
         />
       )}
 
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        title="Approve All Requests?"
-        description={`Are you sure you want to approve all ${filteredData.length} currently filtered requests?`}
-        confirmText="Approve All"
-        cancelText="Cancel"
-        variant="primary"
-        isLoading={isApprovingAll}
-        onClose={closeApproveAllModal}
-        onConfirm={handleConfirmApproveAll}
-      />
+      {isAdmin && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          title="Approve All Requests?"
+          description={`Are you sure you want to approve all ${filteredData.length} currently filtered requests?`}
+          confirmText="Approve All"
+          cancelText="Cancel"
+          variant="primary"
+          isLoading={isApprovingAll}
+          onClose={closeApproveAllModal}
+          onConfirm={handleConfirmApproveAll}
+        />
+      )}
+
+      {!isAdmin && (
+        <CreateRequestModal
+          isOpen={isCreateModalOpen}
+          userId={userId}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateRequest}
+        />
+      )}
     </div>
   );
 };

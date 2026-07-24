@@ -15,6 +15,7 @@ import type { ShiftDay } from "@/pages/Common/SchedulePage/SchedulePage.types";
 // Icons
 import PaglockIcon from "@/assets/icons/padlock_icon.svg?react";
 
+// Interfaces
 interface ExtendedScheduleWeekCalendarProps extends ScheduleWeekCalendarProps {
   onShiftClick?: (shiftId: string | number) => void;
   onDayClick?: (dateStr: string) => void;
@@ -118,18 +119,20 @@ const ScheduleWeekCalendar: React.FC<ExtendedScheduleWeekCalendarProps> = ({
                           event.stopPropagation();
                         }}
                       >
-                        <Button
-                          className={styles.addShiftBtn}
-                          type="button"
-                          isLink={false}
-                          size="normal"
-                          onClick={() => {
-                            // @ts-ignore
-                            onAddShiftClick(day.dateStr);
-                          }}
-                        >
-                          Add shift
-                        </Button>
+                        {onAddShiftClick && (
+                          <Button
+                            className={styles.addShiftBtn}
+                            type="button"
+                            isLink={false}
+                            size="normal"
+                            onClick={() => {
+                              // @ts-ignore
+                              onAddShiftClick(day.dateStr);
+                            }}
+                          >
+                            Add shift
+                          </Button>
+                        )}
                       </div>
                     )}
                   </>

@@ -1,5 +1,5 @@
 // Imports
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 // Styles
 import styles from "./SchedulePage.module.scss";
@@ -10,7 +10,6 @@ import ScheduleCalendar from "@/components/Common/SchedulePage/ScheduleCalendar/
 import ScheduleWeekCalendar from "@/components/Common/SchedulePage/ScheduleWeekCalendar/ScheduleWeekCalendar";
 import CardLoader from "@/components/Common/Loader/Loader";
 import DayShiftsModal from "@/components/Common/SchedulePage/DayShiftsModal/DayShiftsModal";
-import ManageShiftModal from "@/components/Common/SchedulePage/ManageShiftModal/ManageShiftModal";
 import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal";
 import CreateTemplateModal from "@/components/Admin/Settings/Templates/CreateTemplateModal/CreateTemplateModal";
 
@@ -20,10 +19,21 @@ import type {
   TemplateShiftData,
   DbTemplate,
   DbScheduledShift,
+  EmployeeScheduleStats,
+  EmployeeScheduleStatsResponse,
 } from "./SchedulePage.types";
 import type { ModalShiftItem } from "@/components/Common/SchedulePage/DayShiftsModal/DayShiftsModal.types";
 import type { ShiftEmployee } from "@/components/Common/SchedulePage/ManageShiftModal/ManageShiftModal.types";
 type ActiveScheduleModal = "none" | "day" | "manage" | "template";
+
+// Interfaces
+interface StoredUser {
+  id: number;
+  name: string;
+  role?: string;
+  position_id?: number | string;
+  avatarUrl?: string | null;
+}
 
 // Utils
 import {
@@ -41,9 +51,34 @@ import { useScheduleNavigation } from "./hooks/useScheduleNavigation";
 import { useScheduleData } from "./hooks/useScheduleData";
 import { useBookingRange } from "./hooks/useBookingRange";
 import { useShiftAssignments } from "./hooks/useShiftAssignments";
+import ManageShiftModal from "@/components/Common/SchedulePage/ManageShiftModal/ManageShiftModal";
 
 const SchedulePage: React.FC = () => {
   // States
+
+  const currentUser = useMemo<StoredUser | null>(() => {
+    const storedUser: string | null = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUser) as StoredUser;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const userId: number = Number(
+    currentUser?.id || localStorage.getItem("user_id"),
+  );
+
+  const userRole: string =
+    currentUser?.role || localStorage.getItem("userRole") || "employee";
+
+  const isAdmin: boolean = userRole === "admin" || userRole === "manager";
+
   const {
     currentDate,
     viewMode,
@@ -76,8 +111,15 @@ const SchedulePage: React.FC = () => {
     label: "All Professions",
   });
 
-  // Modals management
+  const [employeeStats, setEmployeeStats] =
+    useState<EmployeeScheduleStats | null>(null);
+
+  const [isStatsLoading, setIsStatsLoading] = useState<boolean>(false);
+
+  const [statsError, setStatsError] = useState<string | null>(null);
+
   const [selectedDateStr, setSelectedDateStr] = useState<string>("");
+
   const [modalDateStr, setModalDateStr] = useState<string>("");
 
   const [selectedShiftIdForManage, setSelectedShiftIdForManage] = useState<
@@ -89,80 +131,201 @@ const SchedulePage: React.FC = () => {
 
   const [activeModal, setActiveModal] = useState<ActiveScheduleModal>("none");
 
-  // Memos
   const isModalDatePast = useMemo((): boolean => {
-    if (!modalDateStr) return false;
-    const todayStr = formatDateLocal(new Date());
+    if (!modalDateStr) {
+      return false;
+    }
+
+    const todayStr: string = formatDateLocal(new Date());
+
     return modalDateStr < todayStr;
   }, [modalDateStr]);
 
-  const isShiftReadOnly = useMemo((): boolean => {
-    if (selectedShiftIdForManage === null) return false;
-    const shift = scheduledShifts.find(
-      (s) => s.id === selectedShiftIdForManage,
+  const selectedShiftData = useMemo<DbScheduledShift | undefined>(() => {
+    if (selectedShiftIdForManage === null) {
+      return undefined;
+    }
+
+    return scheduledShifts.find(
+      (shift) => shift.id === selectedShiftIdForManage,
     );
-    if (!shift) return false;
-    const todayStr = formatDateLocal(new Date());
-    return shift.date < todayStr;
-  }, [selectedShiftIdForManage, scheduledShifts]);
+  }, [scheduledShifts, selectedShiftIdForManage]);
+
+  const isShiftReadOnly = useMemo((): boolean => {
+    if (!selectedShiftData) {
+      return false;
+    }
+
+    const todayStr: string = formatDateLocal(new Date());
+
+    return selectedShiftData.date < todayStr;
+  }, [selectedShiftData]);
 
   const selectedShiftForManage = useMemo(() => {
-    if (selectedShiftIdForManage === null) return null;
-    const shift = scheduledShifts.find(
-      (s) => s.id === selectedShiftIdForManage,
-    );
-    if (!shift) return null;
+    if (!selectedShiftData) return null;
 
-    const professionName =
-      rawProfessions.find((p) => String(p.id) === String(shift.position_id))
-        ?.name || shift.position_id;
+    const professionName: string =
+      rawProfessions.find(
+        (profession) =>
+          String(profession.id) === String(selectedShiftData.position_id),
+      )?.name || String(selectedShiftData.position_id);
 
     return {
-      id: String(shift.id),
-      timeWindow: `${shift.start_time.substring(0, 5)} - ${shift.end_time.substring(0, 5)}`,
-      points: shift.points,
-      dateStr: shift.date,
+      id: String(selectedShiftData.id),
+
+      timeWindow: `${selectedShiftData.start_time.substring(
+        0,
+        5,
+      )} - ${selectedShiftData.end_time.substring(0, 5)}`,
+
+      points: selectedShiftData.points,
+
+      dateStr: selectedShiftData.date,
+
       profession: professionName,
     };
-  }, [selectedShiftIdForManage, scheduledShifts, rawProfessions]);
+  }, [selectedShiftData, rawProfessions]);
 
   const assignedEmployeesForCurrentShift = useMemo<ShiftEmployee[]>(() => {
-    if (selectedShiftIdForManage === null) return [];
-    const shift = scheduledShifts.find(
-      (s) => s.id === selectedShiftIdForManage,
-    );
-    if (!shift) return [];
+    if (!selectedShiftData) {
+      return [];
+    }
 
-    return shift.assigned_employees.map((emp) => ({
-      id: emp.id,
-      name: emp.name,
+    return selectedShiftData.assigned_employees.map((employee) => ({
+      id: employee.id,
+
+      name: employee.name,
+
       role:
-        rawProfessions.find((p) => String(p.id) === String(emp.role))?.name ||
-        emp.role,
+        rawProfessions.find(
+          (profession) => String(profession.id) === String(employee.role),
+        )?.name || employee.role,
+
       avatarUrl:
-        emp.avatarUrl ||
-        `https://api.dicebear.com/10.x/avataaars/png?seed=${emp.id}`,
+        employee.avatarUrl ||
+        `https://api.dicebear.com/10.x/avataaars/png?seed=${employee.id}`,
     }));
-  }, [scheduledShifts, selectedShiftIdForManage, rawProfessions]);
+  }, [selectedShiftData, rawProfessions]);
+
+  const visibleAssignedEmployees = useMemo<ShiftEmployee[]>(() => {
+    if (isAdmin) return assignedEmployeesForCurrentShift;
+
+    return assignedEmployeesForCurrentShift.filter(
+      (employee) => String(employee.id) === String(userId),
+    );
+  }, [isAdmin, assignedEmployeesForCurrentShift, userId]);
+
+  const currentEmployee = useMemo<ShiftEmployee | undefined>(() => {
+    if (!userId) {
+      return undefined;
+    }
+
+    const employee = companyEmployees.find(
+      (item) => Number(item.id) === userId,
+    );
+
+    if (employee) {
+      return employee;
+    }
+
+    if (!currentUser) {
+      return undefined;
+    }
+
+    const professionName: string =
+      rawProfessions.find(
+        (profession) =>
+          String(profession.id) === String(currentUser.position_id),
+      )?.name || String(currentUser.position_id || "Employee");
+
+    return {
+      id: String(userId),
+      name: currentUser.name,
+      role: professionName,
+      avatarUrl:
+        currentUser.avatarUrl ||
+        `https://api.dicebear.com/10.x/avataaars/png?seed=${userId}`,
+    };
+  }, [userId, companyEmployees, currentUser, rawProfessions]);
+
+  const employeesAvailableForModal = useMemo<ShiftEmployee[]>(() => {
+    if (isAdmin) {
+      return companyEmployees;
+    }
+
+    return currentEmployee ? [currentEmployee] : [];
+  }, [isAdmin, companyEmployees, currentEmployee]);
 
   const professionOptions = useMemo<ProfessionOption[]>(() => {
-    const apiOptions = rawProfessions.map((p) => ({
-      id: String(p.id),
-      label: p.name,
+    const apiOptions: ProfessionOption[] = rawProfessions.map((profession) => ({
+      id: String(profession.id),
+      label: profession.name,
     }));
-    return [{ id: "all", label: "All Professions" }, ...apiOptions];
-  }, [rawProfessions]);
+
+    if (!isAdmin && currentUser?.position_id) {
+      const employeeProfession = apiOptions.find(
+        (profession) =>
+          String(profession.id) === String(currentUser.position_id),
+      );
+
+      return employeeProfession
+        ? [employeeProfession]
+        : [
+            {
+              id: "all",
+              label: "All Professions",
+            },
+          ];
+    }
+
+    return [
+      {
+        id: "all",
+        label: "All Professions",
+      },
+      ...apiOptions,
+    ];
+  }, [rawProfessions, isAdmin, currentUser]);
 
   const modalProfessions = useMemo(() => {
-    return rawProfessions.map((p) => ({ id: String(p.id), label: p.name }));
+    return rawProfessions.map((profession) => ({
+      id: String(profession.id),
+      label: profession.name,
+    }));
   }, [rawProfessions]);
 
-  const activeScheduledShifts = useMemo((): DbScheduledShift[] => {
+  const activeScheduledShifts = useMemo<DbScheduledShift[]>(() => {
     return scheduledShifts.filter((shift) => {
-      if (!shift.template_id) return false;
-      return templates.some((t) => String(t.id) === String(shift.template_id));
+      if (!shift.template_id) {
+        return false;
+      }
+
+      return templates.some(
+        (template) => String(template.id) === String(shift.template_id),
+      );
     });
   }, [scheduledShifts, templates]);
+
+  const visibleScheduledShifts = useMemo<DbScheduledShift[]>(() => {
+    if (isAdmin) {
+      return activeScheduledShifts;
+    }
+
+    if (!currentUser?.position_id) {
+      return activeScheduledShifts;
+    }
+
+    return activeScheduledShifts.filter((shift) => {
+      const matchesProfession =
+        String(shift.position_id) === String(currentUser.position_id);
+
+      const isAssigned = shift.assigned_employees.some(
+        (employee) => Number(employee.id) === userId,
+      );
+
+      return matchesProfession || isAssigned;
+    });
+  }, [activeScheduledShifts, isAdmin, currentUser, userId]);
 
   const {
     isConfirmOpen,
@@ -182,38 +345,126 @@ const SchedulePage: React.FC = () => {
     currentDate,
     currentProfession,
     selectedDateStr,
-    scheduledShifts: activeScheduledShifts,
+    scheduledShifts: visibleScheduledShifts,
     bookingRange,
   });
 
+  // Memos
   const shiftsForCurrentModalDate = useMemo<ModalShiftItem[]>(() => {
-    return activeScheduledShifts
+    return visibleScheduledShifts
       .filter((shift) => shift.date === modalDateStr)
       .map((shift) => {
-        const professionName =
-          rawProfessions.find((p) => String(p.id) === String(shift.position_id))
-            ?.name || shift.position_id;
+        const professionName: string =
+          rawProfessions.find(
+            (profession) => String(profession.id) === String(shift.position_id),
+          )?.name || String(shift.position_id);
+
         return {
           id: String(shift.id),
+
           name: shift.template_title || `${professionName} Shift`,
-          timeWindow: `${shift.start_time.substring(0, 5)} - ${shift.end_time.substring(0, 5)}`,
+
+          timeWindow: `${shift.start_time.substring(
+            0,
+            5,
+          )} - ${shift.end_time.substring(0, 5)}`,
+
           assignedCount: shift.assigned_employees.length,
+
           maxCount: shift.max_employees,
+
           profession: professionName,
+
           points: shift.points,
         };
       });
-  }, [modalDateStr, activeScheduledShifts, rawProfessions]);
+  }, [modalDateStr, visibleScheduledShifts, rawProfessions]);
 
-  // Handlers
+  const isCurrentEmployeeAssigned = useMemo((): boolean => {
+    if (!selectedShiftData || !userId) {
+      return false;
+    }
 
+    return selectedShiftData.assigned_employees.some(
+      (employee) => Number(employee.id) === userId,
+    );
+  }, [selectedShiftData, userId]);
+
+  const loadEmployeeStats = useCallback(async (): Promise<void> => {
+    if (isAdmin || !userId) {
+      return;
+    }
+
+    setIsStatsLoading(true);
+    setStatsError(null);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/get_employee_schedule_stats.php?user_id=${userId}&date=${formatDateLocal(
+          currentDate,
+        )}`,
+      );
+
+      const data: EmployeeScheduleStatsResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load employee statistics");
+      }
+
+      setEmployeeStats(data.stats);
+    } catch (error: unknown) {
+      const message: string =
+        error instanceof Error ? error.message : String(error);
+
+      setStatsError(message);
+    } finally {
+      setIsStatsLoading(false);
+    }
+  }, [isAdmin, userId, currentDate]);
+
+  // Initials
+  useEffect((): void => {
+    if (isAdmin || !currentUser?.position_id) return;
+
+    const employeeProfession: ProfessionOption | undefined =
+      professionOptions.find(
+        (profession) =>
+          String(profession.id) === String(currentUser.position_id),
+      );
+
+    if (
+      !employeeProfession ||
+      String(currentProfession.id) === String(employeeProfession.id)
+    ) {
+      return;
+    }
+
+    setCurrentProfession(employeeProfession);
+  }, [
+    isAdmin,
+    currentUser?.position_id,
+    currentProfession.id,
+    professionOptions,
+  ]);
+
+  useEffect((): void => {
+    void loadEmployeeStats();
+  }, [loadEmployeeStats, scheduledShifts]);
+
+  // Handles
   const handleDayClick = useCallback(
-    async (dateStr: string) => {
+    async (dateStr: string): Promise<void> => {
       setSelectedDateStr(dateStr);
       setModalDateStr(dateStr);
 
+      if (!isAdmin) {
+        setActiveModal("day");
+        return;
+      }
+
       try {
         const parsedDate: Date = new Date(dateStr);
+
         const daysShort: string[] = [
           "Sun",
           "Mon",
@@ -284,50 +535,77 @@ const SchedulePage: React.FC = () => {
         }
 
         await Promise.all([loadTemplates(), loadShifts()]);
+
         setActiveModal("day");
       } catch (error) {
         console.error("Error during day click synchronization:", error);
       }
     },
-    [templates, scheduledShifts, loadTemplates, loadShifts],
+    [isAdmin, templates, scheduledShifts, loadTemplates, loadShifts],
   );
 
   const handleEditTemplateClick = useCallback(
     (shiftId: string): void => {
-      const foundShift: DbScheduledShift | undefined =
-        activeScheduledShifts.find((s) => String(s.id) === shiftId);
-      if (foundShift) {
-        const matchingTemplate: DbTemplate | undefined = templates.find(
-          (t) => String(t.id) === String(foundShift.template_id),
-        );
-        const rawTemplate = {
-          id: String(foundShift.template_id || ""),
-          title: foundShift.template_title || "Shift",
-          role: String(foundShift.position_id),
-          startTime: foundShift.start_time.substring(0, 5),
-          endTime: foundShift.end_time.substring(0, 5),
-          requiredEmployees: foundShift.max_employees,
-          minEmployees: 1,
-          maxEmployees: foundShift.max_employees + 2,
-          points: Number(foundShift.points),
-          days: matchingTemplate
-            ? Array.isArray(matchingTemplate.days)
-              ? matchingTemplate.days.join(",")
-              : matchingTemplate.days
-            : "Everyday",
-          description: "",
-          isHighPriority: false,
-          location: "Downtown",
-        };
-        setSelectedTemplateData(rawTemplate);
-        setActiveModal("template");
+      if (!isAdmin) {
+        return;
       }
+
+      const foundShift: DbScheduledShift | undefined =
+        activeScheduledShifts.find((shift) => String(shift.id) === shiftId);
+
+      if (!foundShift) {
+        return;
+      }
+
+      const matchingTemplate: DbTemplate | undefined = templates.find(
+        (template) => String(template.id) === String(foundShift.template_id),
+      );
+
+      const rawTemplate = {
+        id: String(foundShift.template_id || ""),
+
+        title: foundShift.template_title || "Shift",
+
+        role: String(foundShift.position_id),
+
+        startTime: foundShift.start_time.substring(0, 5),
+
+        endTime: foundShift.end_time.substring(0, 5),
+
+        requiredEmployees: foundShift.max_employees,
+
+        minEmployees: 1,
+
+        maxEmployees: foundShift.max_employees + 2,
+
+        points: Number(foundShift.points),
+
+        days: matchingTemplate
+          ? Array.isArray(matchingTemplate.days)
+            ? matchingTemplate.days.join(",")
+            : matchingTemplate.days
+          : "Everyday",
+
+        description: "",
+
+        isHighPriority: false,
+
+        location: "Downtown",
+      };
+
+      setSelectedTemplateData(rawTemplate);
+
+      setActiveModal("template");
     },
-    [activeScheduledShifts, templates],
+    [isAdmin, activeScheduledShifts, templates],
   );
 
   const handleAddShiftClick = useCallback(
     (dateStr?: string): void => {
+      if (!isAdmin) {
+        return;
+      }
+
       const targetDateStr: string = dateStr || modalDateStr;
 
       let preselectedDayStr: string = "Mon, Tue, Wed, Thu, Fri, Sat, Sun";
@@ -366,17 +644,24 @@ const SchedulePage: React.FC = () => {
 
       setActiveModal("template");
     },
-    [rawProfessions, modalDateStr],
+    [isAdmin, rawProfessions, modalDateStr],
   );
 
   const handleManageShiftClick = useCallback(
     (shiftId: string | number): void => {
-      const numericId = Number(shiftId);
-      const foundShift = activeScheduledShifts.find((s) => s.id === numericId);
-      if (foundShift) {
-        setSelectedShiftIdForManage(foundShift.id);
-        setActiveModal("manage");
+      const numericId: number = Number(shiftId);
+
+      const foundShift = activeScheduledShifts.find(
+        (shift) => shift.id === numericId,
+      );
+
+      if (!foundShift) {
+        return;
       }
+
+      setSelectedShiftIdForManage(foundShift.id);
+
+      setActiveModal("manage");
     },
     [activeScheduledShifts],
   );
@@ -384,6 +669,10 @@ const SchedulePage: React.FC = () => {
   const handleSaveTemplate = async (
     templateData: TemplateShiftData,
   ): Promise<void> => {
+    if (!isAdmin) {
+      return;
+    }
+
     try {
       const templateId: string | undefined =
         templateData.id || selectedTemplateData?.id;
@@ -410,17 +699,29 @@ const SchedulePage: React.FC = () => {
 
       const bodyPayload = {
         id: isEditMode ? Number(templateId) : null,
+
         title: templateData.title,
+
         role: templateData.role,
+
         startTime: templateData.startTime,
+
         endTime: templateData.endTime,
+
         requiredEmployees: templateData.requiredEmployees,
+
         minEmployees: templateData.minEmployees,
+
         maxEmployees: templateData.maxEmployees,
+
         points: templateData.points,
+
         description: templateData.description,
+
         isHighPriority: templateData.isHighPriority ? 1 : 0,
+
         isRecurring: 1,
+
         days: daysToSend,
       };
 
@@ -444,7 +745,37 @@ const SchedulePage: React.FC = () => {
     }
   };
 
-  if (isLoading) return <CardLoader text="Loading schedule..." />;
+  const handleEmployeeAdd = useCallback(
+    (employee: ShiftEmployee): void => {
+      if (isAdmin) {
+        addEmployee(employee);
+        return;
+      }
+
+      if (!currentEmployee) return;
+
+      addEmployee(currentEmployee);
+    },
+    [isAdmin, currentEmployee, addEmployee],
+  );
+
+  const handleEmployeeRemove = useCallback(
+    (employeeId: string): void => {
+      if (isAdmin) {
+        removeEmployee(employeeId);
+        return;
+      }
+
+      if (!currentEmployee) return;
+
+      removeEmployee(currentEmployee.id);
+    },
+    [isAdmin, currentEmployee, removeEmployee],
+  );
+
+  if (isLoading) {
+    return <CardLoader text="Loading schedule..." />;
+  }
 
   return (
     <div className={styles.schedulePage}>
@@ -458,15 +789,83 @@ const SchedulePage: React.FC = () => {
         onProfessionSelect={setCurrentProfession}
         onPrevMonth={goToPreviousPeriod}
         onNextMonth={goToNextPeriod}
+        showSendSchedule={isAdmin}
       />
+
+      {!isAdmin && (
+        <div className={styles.employeeStats}>
+          {isStatsLoading ? (
+            <CardLoader text="Loading your statistics..." />
+          ) : statsError ? (
+            <p className={styles.employeeStats__error}>{statsError}</p>
+          ) : employeeStats ? (
+            <>
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>Points</span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.points}
+                </strong>
+              </div>
+
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>
+                  Weekly hours
+                </span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.total_hours}h / {employeeStats.max_hours}h
+                </strong>
+              </div>
+
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>Worked</span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.worked_hours}h
+                </strong>
+              </div>
+
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>Booked</span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.booked_hours}h
+                </strong>
+              </div>
+
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>Shifts</span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.total_shifts} / {employeeStats.max_shifts}
+                </strong>
+              </div>
+
+              <div className={styles.employeeStats__item}>
+                <span className={styles.employeeStats__label}>
+                  Required rest
+                </span>
+
+                <strong className={styles.employeeStats__value}>
+                  {employeeStats.min_rest_hours}h
+                </strong>
+              </div>
+            </>
+          ) : null}
+        </div>
+      )}
 
       {viewMode === "month" ? (
         <ScheduleCalendar
           calendarDays={calendarDays}
           DAYS_OF_WEEK={DAYS_OF_WEEK}
           onDayClick={(dateStr) => {
-            const day = calendarDays.find((d) => d.dateStr === dateStr);
-            if (day && day.isAccessible) handleDayClick(dateStr);
+            const day = calendarDays.find((item) => item.dateStr === dateStr);
+
+            if (day && day.isAccessible) {
+              void handleDayClick(dateStr);
+            }
           }}
         />
       ) : (
@@ -475,11 +874,17 @@ const SchedulePage: React.FC = () => {
           DAYS_OF_WEEK={DAYS_OF_WEEK}
           currentDate={currentDate}
           onShiftClick={handleManageShiftClick}
-          onDayClick={(dateStr) => handleDayClick(dateStr)}
-          onAddShiftClick={(dateStr) => {
-            setModalDateStr(dateStr);
-            handleAddShiftClick(dateStr);
+          onDayClick={(dateStr) => {
+            void handleDayClick(dateStr);
           }}
+          onAddShiftClick={
+            isAdmin
+              ? (dateStr: string): void => {
+                  setModalDateStr(dateStr);
+                  handleAddShiftClick(dateStr);
+                }
+              : undefined
+          }
         />
       )}
 
@@ -489,10 +894,14 @@ const SchedulePage: React.FC = () => {
         dateStr={modalDateStr || getRelativeDateStr(0)}
         shifts={shiftsForCurrentModalDate}
         professions={modalProfessions}
-        onAddShift={() => handleAddShiftClick()}
+        onAddShift={() => {
+          if (isAdmin) handleAddShiftClick();
+        }}
         onSelectShift={handleManageShiftClick}
-        onEditShift={handleEditTemplateClick}
-        isReadOnly={isModalDatePast}
+        onEditShift={(shiftId) => {
+          if (isAdmin) handleEditTemplateClick(shiftId);
+        }}
+        isReadOnly={isModalDatePast || !isAdmin}
       />
 
       <ManageShiftModal
@@ -501,10 +910,10 @@ const SchedulePage: React.FC = () => {
           setActiveModal(viewMode === "month" ? "day" : "none");
         }}
         shiftDetails={selectedShiftForManage}
-        assignedEmployees={assignedEmployeesForCurrentShift}
-        allEmployees={companyEmployees}
-        onRemoveEmployee={removeEmployee}
-        onAddEmployee={addEmployee}
+        assignedEmployees={visibleAssignedEmployees}
+        allEmployees={employeesAvailableForModal}
+        onRemoveEmployee={handleEmployeeRemove}
+        onAddEmployee={handleEmployeeAdd}
         isReadOnly={isShiftReadOnly}
       />
 
@@ -518,15 +927,26 @@ const SchedulePage: React.FC = () => {
         onConfirm={confirmConfig?.action || (() => {})}
       />
 
-      <CreateTemplateModal
-        isOpen={activeModal === "template"}
-        initialData={selectedTemplateData as any}
-        onClose={() => {
-          setSelectedTemplateData(null);
-          setActiveModal("day");
-        }}
-        onSave={handleSaveTemplate as any}
-      />
+      {isAdmin && (
+        <CreateTemplateModal
+          isOpen={activeModal === "template"}
+          initialData={selectedTemplateData as any}
+          onClose={() => {
+            setSelectedTemplateData(null);
+
+            setActiveModal("day");
+          }}
+          onSave={handleSaveTemplate as any}
+        />
+      )}
+
+      {!isAdmin && activeModal === "manage" && selectedShiftData && (
+        <span className={styles.employeeShiftStatus}>
+          {isCurrentEmployeeAssigned
+            ? "You are booked for this shift"
+            : `${selectedShiftData.assigned_employees.length} of ${selectedShiftData.max_employees} places booked`}
+        </span>
+      )}
     </div>
   );
 };

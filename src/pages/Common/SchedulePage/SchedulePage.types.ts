@@ -113,3 +113,30 @@ export interface SchedulingRules {
   allow_overtime: boolean | number;
   auto_balance: boolean | number;
 }
+
+export interface EmployeeScheduleStats {
+  user_id: number;
+  name: string;
+  points: number;
+  worked_hours: number;
+  booked_hours: number;
+  total_hours: number;
+  max_hours: number;
+  remaining_hours: number;
+  worked_shifts: number;
+  booked_shifts: number;
+  total_shifts: number;
+  max_shifts: number;
+  remaining_shifts: number;
+  min_rest_hours: number;
+}
+
+export interface EmployeeScheduleStatsResponse {
+  success: boolean;
+  week: {
+    start: string;
+    end: string;
+  };
+  stats: EmployeeScheduleStats;
+  error?: string;
+}

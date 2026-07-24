@@ -10,4 +10,5 @@ export interface ScheduleHeaderProps {
   onProfessionSelect: (option: ProfessionOption) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  showSendSchedule?: boolean;
 }

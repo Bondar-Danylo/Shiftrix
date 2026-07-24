@@ -21,6 +21,7 @@ const ScheduleHeader = ({
   setViewMode,
   onPrevMonth,
   onNextMonth,
+  showSendSchedule = true,
 }: ScheduleHeaderProps) => {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
@@ -86,29 +87,33 @@ const ScheduleHeader = ({
         </div>
       </div>
 
-      <div className={styles.scheduleHeader__right}>
-        <Button
-          type="button"
-          size="normal"
-          isLink={false}
-          className={`${styles.scheduleHeader__btn} ${styles.scheduleHeader__btn_publish}`}
-          onClick={handleOpenModal}
-        >
-          <span>Send Schedule</span>
-        </Button>
-      </div>
+      {showSendSchedule && (
+        <div className={styles.scheduleHeader__right}>
+          <Button
+            type="button"
+            size="normal"
+            isLink={false}
+            className={`${styles.scheduleHeader__btn} ${styles.scheduleHeader__btn_publish}`}
+            onClick={handleOpenModal}
+          >
+            <span>Send Schedule</span>
+          </Button>
+        </div>
+      )}
 
-      <ConfirmationModal
-        isOpen={isPublishModalOpen}
-        title="Publish Schedule"
-        description="All assigned employees will receive notifications about their shifts."
-        confirmText="Yes, publish"
-        cancelText="Cancel"
-        variant="primary"
-        isLoading={isPublishing}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmPublish}
-      />
+      {showSendSchedule && (
+        <ConfirmationModal
+          isOpen={isPublishModalOpen}
+          title="Publish Schedule"
+          description="All assigned employees will receive notifications about their shifts."
+          confirmText="Yes, publish"
+          cancelText="Cancel"
+          variant="primary"
+          isLoading={isPublishing}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmPublish}
+        />
+      )}
     </header>
   );
 };

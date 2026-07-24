@@ -83,7 +83,7 @@
     width: 18px;
     left: 3px;
     bottom: 3px;
-    background-color: white;
+    background-color: var(--white_color);
     transition: 0.2s;
     border-radius: 50%;
   }
@@ -187,6 +187,7 @@ input:checked + .slider::before {
   }
 }
 
+// Responsive
 @media screen and (max-width: 575px) {
   .card {
     padding: 16px;

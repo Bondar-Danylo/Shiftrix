@@ -185,6 +185,7 @@ const EmployeesPage = () => {
     rawEmployees,
   ]);
 
+  // Handles
   const handleSearch = useCallback((value: string): void => {
     setSearchQuery(value);
   }, []);

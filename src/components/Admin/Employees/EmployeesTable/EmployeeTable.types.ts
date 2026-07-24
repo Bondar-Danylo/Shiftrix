@@ -1,6 +1,4 @@
-import type {
-  EmployeeWeeklyHours,
-} from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
+import type {EmployeeWeeklyHours} from "@/pages/Admin/EmployeesPage/EmployeesPage.types";
 
 export interface Employee {
   id: string | number;

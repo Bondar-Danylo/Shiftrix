@@ -53,6 +53,7 @@ const QuickActionCard = () => {
       to: "",
     },
   ];
+
   return (
     <CardLayout title="Quick Actions" subtitle="" className={styles.wrapper}>
       <ul className={styles.list}>

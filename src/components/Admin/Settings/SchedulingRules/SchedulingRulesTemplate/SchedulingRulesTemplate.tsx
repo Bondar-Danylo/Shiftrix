@@ -92,6 +92,7 @@ const SchedulingRulesTemplate = () => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Handles
   const handleSubmitClick = (e: FormEvent): void => {
     e.preventDefault();
     setIsModalOpen(true);

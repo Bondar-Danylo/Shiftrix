@@ -18,21 +18,9 @@ import { NavLink } from "react-router-dom";
 const menuConfig: MenuItem[] = [
   // Shared Pages
   {
-    to: "/dashboard",
-    label: "Dashboard",
-    Icon: DashboardIcon,
-    roles: ["admin", "employee"],
-  },
-  {
     to: "/schedule",
     label: "Schedule",
     Icon: ScheduleIcon,
-    roles: ["admin", "employee"],
-  },
-  {
-    to: "/settings",
-    label: "Settings",
-    Icon: SettingsIcon,
     roles: ["admin", "employee"],
   },
   {
@@ -44,6 +32,18 @@ const menuConfig: MenuItem[] = [
 
   // Admin Pages
   {
+    to: "/dashboard",
+    label: "Dashboard",
+    Icon: DashboardIcon,
+    roles: ["admin"],
+  },
+  {
+    to: "/settings",
+    label: "Settings",
+    Icon: SettingsIcon,
+    roles: ["admin"],
+  },
+  {
     to: "/employees",
     label: "Employees",
     Icon: EmployeesIcon,
@@ -54,6 +54,14 @@ const menuConfig: MenuItem[] = [
     label: "Analytics",
     Icon: AnalyticsIcon,
     roles: ["admin"],
+  },
+
+  // Employee Pages
+  {
+    to: "/employee-dashboard",
+    label: "Dashboard",
+    Icon: DashboardIcon,
+    roles: ["employee"],
   },
 ];
 

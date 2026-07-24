@@ -26,6 +26,7 @@ const ScheduleHeader = ({
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
 
+  // Handles
   const handleOpenModal = useCallback(
     (): void => setIsPublishModalOpen(true),
     [],

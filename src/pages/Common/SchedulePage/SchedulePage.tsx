@@ -55,7 +55,6 @@ import ManageShiftModal from "@/components/Common/SchedulePage/ManageShiftModal/
 
 const SchedulePage: React.FC = () => {
   // States
-
   const currentUser = useMemo<StoredUser | null>(() => {
     const storedUser: string | null = localStorage.getItem("user");
 

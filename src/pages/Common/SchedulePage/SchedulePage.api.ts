@@ -46,11 +46,7 @@ export interface PointsHistoryItem {
   amount: number;
   balance_after: number;
   action_type: "added" | "removed";
-  transaction_type:
-    | "early_access_charge"
-    | "shift_reward"
-    | "booking_refund"
-    | "manual_adjustment";
+  transaction_type: "early_access_charge" | "shift_reward" | "booking_refund" | "manual_adjustment";
   reason: string;
   created_at: string;
   shift_date?: string | null;
@@ -101,10 +97,7 @@ export interface WeeklyHoursResponse {
 }
 
 // Main Func
-async function apiRequest<T>(
-  url: string,
-  options?: RequestInit,
-): Promise<T> {
+async function apiRequest<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, options);
   const text = await response.text();
 
@@ -197,10 +190,7 @@ export const scheduleApi = {
     );
   },
 
-  getShifts(
-    startDate: string,
-    endDate: string,
-  ): Promise<DbScheduledShift[]> {
+  getShifts(startDate: string, endDate: string): Promise<DbScheduledShift[]> {
     const params = new URLSearchParams({
       start: startDate,
       end: endDate,

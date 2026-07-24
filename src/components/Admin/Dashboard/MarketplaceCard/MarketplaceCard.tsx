@@ -13,11 +13,11 @@ import RocketIcon from "@/assets/icons/rocket_icon.svg?react";
 
 // Imports
 import React, { useState, useEffect } from "react";
-import type { MarketplaceData } from "./MarketplaceCard.types";
 
+// Types
+import type { MarketplaceData } from "./MarketplaceCard.types";
 type MarketplaceAction = "notify" | "boost" | null;
 
-// Mock API request
 const fetchMarketplaceData = (): Promise<MarketplaceData> => {
   return new Promise((resolve) => {
     setTimeout(() => {

@@ -50,9 +50,7 @@ const CreateRequestModal = ({
   const [error, setError] = useState<string | null>(null);
 
   const loadSwapData = useCallback(async (): Promise<void> => {
-    if (!userId) {
-      return;
-    }
+    if (!userId) return;
 
     setIsSwapDataLoading(true);
     setError(null);

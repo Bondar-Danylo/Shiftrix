@@ -52,7 +52,6 @@ const AddEmployeeModal = ({
   const [departments, setDepartments] = useState<any[]>([]);
   const [positions, setPositions] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const isEditMode = Boolean(employeeToEdit);
 
   useEffect(() => {
@@ -123,6 +122,7 @@ const AddEmployeeModal = ({
 
   if (!isOpen) return null;
 
+  // Handles
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({

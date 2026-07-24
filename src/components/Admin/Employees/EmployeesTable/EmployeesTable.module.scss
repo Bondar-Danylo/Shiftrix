@@ -97,19 +97,24 @@
 }
 
 .statusWorking { 
-  background-color: var(--light-green_color); color: var(--dark-green_color); 
+  background-color: var(--light-green_color); 
+  color: var(--dark-green_color); 
 }
 .statusVacation { 
-  background-color: var(--light-blue_color); color: var(--main_color); 
+  background-color: var(--light-blue_color); 
+  color: var(--main_color); 
 }
 .statusSick { 
-  background-color: var(--light-red_color); color: var(--red_color); 
+  background-color: var(--light-red_color); 
+  color: var(--red_color); 
 }
 .statusAvailable { 
-  background-color: var(--light-orange_color); color: var(--dark-orange_color); 
+  background-color: var(--light-orange_color); 
+  color: var(--dark-orange_color); 
 }
 .statusDayOff { 
-  background-color: var(--light-purple_color); color: var(--purple_color); 
+  background-color: var(--light-purple_color); 
+  color: var(--purple_color); 
 }
 
 .whatsapp {
@@ -140,7 +145,10 @@
 
 .points {
   color: var(--graphite_color);
-  strong { color: var(--black_color); font-weight: var(--weight-semibold); }
+  strong { 
+    color: var(--black_color); 
+    font-weight: var(--weight-semibold); 
+  }
 }
 
 .hoursContainer {
@@ -154,9 +162,17 @@
   font-size: var(--size-md);
 }
 
-.normalHoursText { font-weight: var(--weight-semibold); color: var(--orange_color); } 
-.overworkedText { font-weight: var(--weight-semibold); color: var(--red_color); } 
-.maxHoursText { color: var(--dark-grey_color); }
+.normalHoursText { 
+  font-weight: var(--weight-semibold); 
+  color: var(--orange_color); 
+} 
+.overworkedText { 
+  font-weight: var(--weight-semibold); 
+  color: var(--red_color); 
+} 
+.maxHoursText { 
+  color: var(--dark-grey_color); 
+}
 
 .progressBarBg {
   width: 100%;
@@ -171,9 +187,15 @@
   border-radius: 3px;
 }
 
-.bgRed { background-color: var(--red_color); }
-.bgYellow { background-color: var(--dark-orange_color); }
-.bgGreen { background-color: var(--dark-green_color); }
+.bgRed { 
+  background-color: var(--red_color); 
+}
+.bgYellow { 
+  background-color: var(--dark-orange_color); 
+}
+.bgGreen { 
+  background-color: var(--dark-green_color); 
+}
 
 .reliabilityCell {
   display: flex;
@@ -192,8 +214,14 @@
   padding: 5px 10px;
   border-radius: 10px;
   
-  &.excellent { background-color: var(--light-green_color); color: var(--dark-green_color); }
-  &.good { background-color: var(--light-orange_color); color: var(--dark-orange_color); }
+  &.excellent { 
+    background-color: var(--light-green_color); 
+    color: var(--dark-green_color); 
+  }
+  &.good { 
+    background-color: var(--light-orange_color); 
+    color: var(--dark-orange_color); 
+  }
 }
 
 .actionsCell {

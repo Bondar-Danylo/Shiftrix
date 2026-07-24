@@ -14,6 +14,7 @@ import AnalyticsPage from "./pages/Admin/AnalyticsPage/AnalyticsPage";
 import EmployeesPage from "./pages/Admin/EmployeesPage/EmployeesPage";
 import ProfilePage from "./pages/Common/ProfilePage/ProfilePage";
 import SettingsPage from "./pages/Common/SettingsPage/SettingsPage";
+import EmployeeDashboardPage from "./pages/User/EmployeeDashboardPage/EmployeeDashboardPage";
 
 // Layouts
 import MainLayout from "@/layouts/MainLayout/MainLayout";
@@ -32,17 +33,23 @@ const App = () => {
             <Route index element={<Navigate to="/schedule" />} />
 
             {/* Common Routes */}
+            <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="settings" element={<SettingsPage />} />
             <Route path="schedule" element={<SchedulePage />} />
             <Route path="requests" element={<RequestsPage />} />
 
             {/* Admin Routes */}
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-              <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="employees" element={<EmployeesPage />} />
+              <Route path="settings" element={<SettingsPage />} />
             </Route>
+
+            {/* Employee Routes */}
+            <Route
+              path="employee-dashboard"
+              element={<EmployeeDashboardPage />}
+            />
           </Route>
         </Route>
 

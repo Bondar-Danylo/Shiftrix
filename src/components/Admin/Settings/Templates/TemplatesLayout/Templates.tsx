@@ -56,6 +56,7 @@ const Templates = () => {
       template.role.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  // Handles
   const handleCreateClick = (): void => {
     setTemplateToEdit(null);
     setIsFormModalOpen(true);

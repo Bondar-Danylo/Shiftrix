@@ -16,6 +16,8 @@ import type { CreateTemplateModalProps } from "./CreateTemplateModal.types";
 
 // Extras
 const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// Interfaces
 interface RoleOption {
   id: string | number;
   name: string;
@@ -28,7 +30,6 @@ const CreateTemplateModal = ({
   onSave,
 }: CreateTemplateModalProps) => {
   const isEditMode = !!initialData;
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");

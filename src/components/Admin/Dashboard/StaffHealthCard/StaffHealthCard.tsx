@@ -16,7 +16,6 @@ import type {
 
 // Imports
 import { useEffect, useState } from "react";
-
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 
 const StaffHealthCard = () => {

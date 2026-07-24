@@ -1,0 +1,345 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+  box-shadow: var(--light_shadow);
+
+  &__label {
+    margin: 0 0 4px;
+    color: var(--main_color);
+    font-size: var(--size-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--graphite_color);
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__text {
+    margin: 6px 0 0;
+    color: var(--dark-grey_color);
+    font-size: var(--size-md);
+  }
+}
+
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  a {
+    padding: 10px 16px;
+    border-radius: var(--small_radius);
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    transition: all ease 0.3s;
+  }
+
+  &__primary {
+    color: var(--white_color);
+    background: var(--main_color);
+  }
+
+  &__secondary {
+    color: var(--main_color);
+    background: var(--white_color);
+    border: 1px solid var(--main_color);
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+  box-shadow: var(--light_shadow);
+
+  &__label {
+    color: var(--dark-grey_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-medium);
+  }
+
+  &__value {
+    color: var(--graphite_color);
+    font-size: var(--size-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__description {
+    color: var(--dark-grey_color);
+    font-size: var(--size-sm);
+  }
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.card {
+  padding: 18px;
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--normal_radius);
+  box-shadow: var(--light_shadow);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ligh-grey_color);
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--graphite_color);
+    font-size: var(--size-lg);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    color: var(--dark-grey_color);
+    font-size: var(--size-sm);
+  }
+
+  &__link {
+    color: var(--main_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.progressBlock {
+  margin-top: 18px;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--graphite_color);
+    font-size: var(--size-md);
+  }
+}
+
+.progress {
+  height: 8px;
+  overflow: hidden;
+  background: var(--ligh-grey_color);
+  border-radius: 20px;
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--green_color);
+    border-radius: inherit;
+    transition: width ease 0.4s;
+  }
+}
+
+.nextShift {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 16px;
+  background: var(--menu-ligh_gradient);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+
+  &__date {
+    color: var(--main_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__time {
+    color: var(--graphite_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    strong {
+      color: var(--graphite_color);
+    }
+
+    span {
+      color: var(--dark-grey_color);
+      font-size: var(--size-sm);
+    }
+  }
+
+  &__points {
+    padding: 5px 10px;
+    color: var(--main_color);
+    background: var(--white_color);
+    border-radius: var(--small_radius);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.shiftList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.shiftItem {
+  display: grid;
+  grid-template-columns: 110px 1fr 140px auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  background: var(--white_color);
+  border: 1px solid var(--ligh-grey_color);
+  border-radius: var(--small_radius);
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: var(--menu-ligh_gradient);
+    border-color: var(--main_color);
+  }
+
+  &__date {
+    color: var(--graphite_color);
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    strong {
+      color: var(--graphite_color);
+    }
+
+    span {
+      color: var(--dark-grey_color);
+      font-size: var(--size-sm);
+    }
+  }
+
+  &__position {
+    color: var(--dark-grey_color);
+    font-size: var(--size-md);
+  }
+
+  &__points {
+    color: var(--main_color);
+
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.empty, .error {
+  padding: 24px;
+  color: var(--dark-grey_color);
+  font-size: var(--size-md);
+  text-align: center;
+}
+
+.error {
+  color: var(--dark-red_color);
+  background: var(--light-red_color);
+  border: 1px solid var(--red_color);
+  border-radius: var(--normal_radius);
+}
+
+// Responsive
+@media screen and (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .welcome {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .shiftItem {
+    grid-template-columns: 1fr auto;
+
+    &__position {
+      display: none;
+    }
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quickActions {
+    width: 100%;
+    flex-direction: column;
+
+    a {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .nextShift {
+    grid-template-columns: 1fr;
+  }
+
+  .shiftItem {
+    grid-template-columns: 1fr;
+    
+    &__points {
+      justify-self: flex-start;
+    }
+  }
+}

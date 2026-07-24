@@ -44,6 +44,7 @@ const EmployeesTable = ({
     null,
   );
 
+  // Handles
   const handleRowClick = (emp: Employee): void => {
     setSelectedEmployee(emp);
     setIsModalOpen(true);

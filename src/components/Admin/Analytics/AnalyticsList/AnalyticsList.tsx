@@ -1,6 +1,7 @@
 // Styles
 import styles from "./AnalyticsList.module.scss";
 
+// Components
 import CardSpeed from "@/components/Admin/Analytics/CardSpeed/CardSpeed";
 import CardVelocity from "@/components/Admin/Analytics/CardVelocity/CardVelocity";
 import CardMotivation from "@/components/Admin/Analytics/CardMotivation/CardMotivation";

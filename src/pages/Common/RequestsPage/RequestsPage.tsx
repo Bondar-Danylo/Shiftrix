@@ -7,6 +7,7 @@ import Search from "@/components/Common/Search/Search";
 import Button from "@/components/Common/Button/Button";
 import RequestsList from "@/components/Common/RequestsList/RequestsList";
 import ConfirmationModal from "@/components/Common/ConfirmationModal/ConfirmationModal";
+import CreateRequestModal from "@/components/Common/CreateRequestModal/CreateRequestModal";
 
 // Icons
 import FilterIcon from "@/assets/icons/filter_icon.svg?react";
@@ -16,7 +17,6 @@ import { useCallback, useState, useEffect, useMemo } from "react";
 
 // Types
 import type { FilterOption, RequestItem } from "./RequestsPage.types";
-import CreateRequestModal from "@/components/Common/CreateRequestModal/CreateRequestModal";
 import type { CreateRequestData } from "@/components/Common/CreateRequestModal/CreateRequestModal.types";
 
 // Interfaces
